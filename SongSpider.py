@@ -23,6 +23,10 @@ class SongSpider:
 
         chrome_options = Options()
         chrome_options.add_argument('--headless')
+        # chrome_options.add_argument('user-agent={0}'.format('MQQBrowser/26 Mozilla/5.0 (Linux; U; Android 2.3.7; zh-cn; MB200 Build/GRJ22; CyanogenMod-7) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1'))
+        # chrome_options.add_experimental_option("prefs", {"profile.managed_default_content_settings.images": 2})
+
+
         self.driver = driver = webdriver.Chrome("/Users/william/Desktop/global/chromedriver", options=chrome_options)
 
 
@@ -30,7 +34,7 @@ class SongSpider:
 
         self.driver.get(self.songUrl)
         
-        WebDriverWait(self.driver, 50).until(
+        WebDriverWait(self.driver, 5).until(
             EC.presence_of_all_elements_located((By.TAG_NAME, 'iframe'))
         )
         
@@ -93,5 +97,23 @@ class SongSpider:
 
 
 #return tuple(tuple(song_info), list[tuples of song_artists])
+
+def timeit(func, **arg):
+    start = time.time()
+    func(arg)
+    end = time.time()
+    return (end-start)
+
+if __name__ == "__main__":
+    sp = SongSpider('https://music.163.com/#/song?id=186453')
+    start = time.time()
+    a = sp.getPageSource()
+    end = time.time()
+    print('dynamic rendering ' , end-start)
+    start = time.time()
+    sp.getInfo(a)
+    end = time.time()
+    print('static analysing ' , end-start)
+
 
 
