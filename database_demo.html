@@ -13084,7 +13084,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[340]:</div>
+<div class="prompt input_prompt">In&nbsp;[24]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">sqlite3</span>
@@ -13107,7 +13107,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[341]:</div>
+<div class="prompt input_prompt">In&nbsp;[25]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># 将数据库抽象为一个类，方便读写调用</span>
@@ -13121,55 +13121,85 @@ div#notebook {
 
     <span class="c1"># 写入歌曲播放页爬取到的数据</span>
     <span class="k">def</span> <span class="nf">write_Song_infos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">song_infos_list</span><span class="p">,</span> <span class="n">song2singer_list</span><span class="p">):</span>
+        <span class="c1"># 检查是否歌曲id已存在</span>
+        <span class="n">exist_songs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">song</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">song</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;SELECT id FROM Song&quot;</span><span class="p">)])</span>
+        <span class="n">input_songs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">song</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">song</span> <span class="ow">in</span> <span class="n">song_infos_list</span><span class="p">])</span>
+        <span class="n">new_songs</span> <span class="o">=</span> <span class="n">input_songs</span> <span class="o">-</span> <span class="n">exist_songs</span>      
+        
         <span class="c1"># 歌曲9项基本信息</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">executemany</span><span class="p">(</span><span class="s1">&#39;INSERT INTO Song VALUES (?,?,?,?,?,?,?,?,?)&#39;</span><span class="p">,</span> <span class="n">song_infos_list</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">executemany</span><span class="p">(</span><span class="s1">&#39;INSERT OR IGNORE INTO Song VALUES (?,?,?,?,?,?,?,?,?)&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">song</span> <span class="k">for</span> <span class="n">song</span> <span class="ow">in</span> <span class="n">song_infos_list</span> <span class="k">if</span> <span class="n">song</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">new_songs</span><span class="p">])</span>
         <span class="c1"># 歌曲与歌手的多对多关系</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">executemany</span><span class="p">(</span><span class="s1">&#39;INSERT INTO Song2Singer VALUES (?,?)&#39;</span><span class="p">,</span> <span class="n">song2singer_list</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">executemany</span><span class="p">(</span><span class="s1">&#39;INSERT INTO Song2Singer VALUES (?,?)&#39;</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">song</span> <span class="k">for</span> <span class="n">song</span> <span class="ow">in</span> <span class="n">song2singer_list</span> <span class="k">if</span> <span class="n">song</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">new_songs</span><span class="p">])))</span>
         <span class="c1"># 提交插入更改请求</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">db_connection</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
         
     <span class="c1"># 写入专辑信息</span>
     <span class="k">def</span> <span class="nf">write_Album_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">albums_list</span><span class="p">):</span>
+        <span class="c1"># 检查是否专辑id已存在</span>
+        <span class="n">exist_albums</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">album</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">album</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;SELECT id FROM Album&quot;</span><span class="p">)])</span>
+        <span class="n">input_albums</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">album</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">album</span> <span class="ow">in</span> <span class="n">albums_list</span><span class="p">])</span>
+        <span class="n">new_albums</span> <span class="o">=</span> <span class="n">input_albums</span> <span class="o">-</span> <span class="n">exist_albums</span> 
+        
         <span class="c1"># 专辑id及其名字</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">executemany</span><span class="p">(</span><span class="s1">&#39;INSERT INTO Album VALUES (?,?)&#39;</span><span class="p">,</span> <span class="n">albums_list</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">executemany</span><span class="p">(</span><span class="s1">&#39;INSERT OR IGNORE INTO Album VALUES (?,?)&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">album</span> <span class="k">for</span> <span class="n">album</span> <span class="ow">in</span> <span class="n">albums_list</span> <span class="k">if</span> <span class="n">album</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">new_albums</span><span class="p">])</span>
         <span class="c1"># 提交插入更改请求</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">db_connection</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
         
     <span class="c1"># 写入歌手信息</span>
     <span class="k">def</span> <span class="nf">write_Singer_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">singers_list</span><span class="p">):</span>
+        <span class="c1"># 检查是否歌手id已存在</span>
+        <span class="n">exist_singers</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">singer</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">singer</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;SELECT id FROM Singer&quot;</span><span class="p">)])</span>
+        <span class="n">input_singers</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">singer</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">singer</span> <span class="ow">in</span> <span class="n">singers_list</span><span class="p">])</span>
+        <span class="n">new_singers</span> <span class="o">=</span> <span class="n">input_singers</span> <span class="o">-</span> <span class="n">exist_singers</span> 
+        
         <span class="c1"># 专辑id及其名字</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">executemany</span><span class="p">(</span><span class="s1">&#39;INSERT INTO Singer VALUES (?,?)&#39;</span><span class="p">,</span> <span class="n">singers_list</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">executemany</span><span class="p">(</span><span class="s1">&#39;INSERT OR IGNORE INTO Singer VALUES (?,?)&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">singer</span> <span class="k">for</span> <span class="n">singer</span> <span class="ow">in</span> <span class="n">singers_list</span> <span class="k">if</span> <span class="n">singer</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">new_singers</span><span class="p">])</span>
         <span class="c1"># 提交插入更改请求</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">db_connection</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
         
     <span class="c1"># 写入歌单页爬取到的数据</span>
     <span class="k">def</span> <span class="nf">write_SongList_infos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">songlist_infos_list</span><span class="p">,</span> <span class="n">songlist2tag_list</span><span class="p">,</span> <span class="n">songlist2song_list</span><span class="p">):</span>
+        <span class="c1"># 检查是否歌单id已存在</span>
+        <span class="n">exist_songlists</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">songlist</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">songlist</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;SELECT id FROM SongList&quot;</span><span class="p">)])</span>
+        <span class="n">input_songlists</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">songlist</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">songlist</span> <span class="ow">in</span> <span class="n">songlist_infos_list</span><span class="p">])</span>
+        <span class="n">new_songlists</span> <span class="o">=</span> <span class="n">input_songlists</span> <span class="o">-</span> <span class="n">exist_songlists</span> 
+        
         <span class="c1"># 歌单7项基本信息</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">executemany</span><span class="p">(</span><span class="s1">&#39;INSERT INTO SongList VALUES (?,?,?,?,?,?,?)&#39;</span><span class="p">,</span> <span class="n">songlist_infos_list</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">executemany</span><span class="p">(</span><span class="s1">&#39;INSERT OR IGNORE INTO SongList VALUES (?,?,?,?,?,?,?)&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">songlist</span> <span class="k">for</span> <span class="n">songlist</span> <span class="ow">in</span> <span class="n">songlist_infos_list</span> <span class="k">if</span> <span class="n">songlist</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">new_songlists</span><span class="p">])</span>
         <span class="c1"># 歌单与歌单标签的多对多关系</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">executemany</span><span class="p">(</span><span class="s1">&#39;INSERT INTO SongList2Tag VALUES (?,?)&#39;</span><span class="p">,</span> <span class="n">songlist2tag_list</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">executemany</span><span class="p">(</span><span class="s1">&#39;INSERT INTO SongList2Tag VALUES (?,?)&#39;</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">songlist</span> <span class="k">for</span> <span class="n">songlist</span> <span class="ow">in</span> <span class="n">songlist2tag_list</span> <span class="k">if</span> <span class="n">songlist</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">new_songlists</span><span class="p">])))</span>
         <span class="c1"># 歌单与歌曲的多对多关系</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">executemany</span><span class="p">(</span><span class="s1">&#39;INSERT INTO SongList2Song VALUES (?,?)&#39;</span><span class="p">,</span> <span class="n">songlist2song_list</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">executemany</span><span class="p">(</span><span class="s1">&#39;INSERT INTO SongList2Song VALUES (?,?)&#39;</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">songlist</span> <span class="k">for</span> <span class="n">songlist</span> <span class="ow">in</span> <span class="n">songlist2song_list</span> <span class="k">if</span> <span class="n">songlist</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">new_songlists</span><span class="p">])))</span>
         <span class="c1"># 提交插入更改请求</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">db_connection</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
         
     <span class="c1"># 写入歌单标签信息</span>
     <span class="k">def</span> <span class="nf">write_Tag_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tags_list</span><span class="p">):</span>
+        <span class="c1"># 检查是否标签id已存在</span>
+        <span class="n">exist_tags</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">tag</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;SELECT id FROM Tag&quot;</span><span class="p">)])</span>
+        <span class="n">input_tags</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">tag</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">tags_list</span><span class="p">])</span>
+        <span class="n">new_tags</span> <span class="o">=</span> <span class="n">input_tags</span> <span class="o">-</span> <span class="n">exist_tags</span> 
+        
         <span class="c1"># 歌单标签id及其名字</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">executemany</span><span class="p">(</span><span class="s1">&#39;INSERT INTO Tag VALUES (?,?)&#39;</span><span class="p">,</span> <span class="n">tags_list</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">executemany</span><span class="p">(</span><span class="s1">&#39;INSERT OR IGNORE INTO Tag VALUES (?,?)&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">tag</span> <span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">tags_list</span> <span class="k">if</span> <span class="n">tag</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">new_tags</span><span class="p">])</span>
         <span class="c1"># 提交插入更改请求</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">db_connection</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
 
     <span class="c1"># 写入用户页爬取到的数据</span>
     <span class="k">def</span> <span class="nf">write_User_infos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_infos_list</span><span class="p">,</span> <span class="n">user2song_list</span><span class="p">,</span> <span class="n">user2songlist_list</span><span class="p">,</span> <span class="n">follow_list</span><span class="p">):</span>
+        <span class="c1"># 检查是否用户id已存在</span>
+        <span class="n">exist_users</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">user</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">user</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;SELECT id FROM User_Table&quot;</span><span class="p">)])</span>
+        <span class="n">input_users</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">user</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">user</span> <span class="ow">in</span> <span class="n">user_infos_list</span><span class="p">])</span>
+        <span class="n">new_users</span> <span class="o">=</span> <span class="n">input_users</span> <span class="o">-</span> <span class="n">exist_users</span>
+        
         <span class="c1"># 用户3项基本信息</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">executemany</span><span class="p">(</span><span class="s1">&#39;INSERT INTO User_Table VALUES (?,?,?)&#39;</span><span class="p">,</span> <span class="n">user_infos_list</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">executemany</span><span class="p">(</span><span class="s1">&#39;INSERT OR IGNORE INTO User_Table VALUES (?,?,?)&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">user</span> <span class="k">for</span> <span class="n">user</span> <span class="ow">in</span> <span class="n">user_infos_list</span> <span class="k">if</span> <span class="n">user</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">new_users</span><span class="p">])</span>
         <span class="c1"># 用户与歌曲的多对多关系（最近听的歌）</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">executemany</span><span class="p">(</span><span class="s1">&#39;INSERT INTO User2Song VALUES (?,?)&#39;</span><span class="p">,</span> <span class="n">user2song_list</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">executemany</span><span class="p">(</span><span class="s1">&#39;INSERT INTO User2Song VALUES (?,?)&#39;</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">user</span> <span class="k">for</span> <span class="n">user</span> <span class="ow">in</span> <span class="n">user2song_list</span> <span class="k">if</span> <span class="n">user</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">new_users</span><span class="p">])))</span>
         <span class="c1"># 用户与歌单的多对多关系（用户收藏的歌单）</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">executemany</span><span class="p">(</span><span class="s1">&#39;INSERT INTO User2SongList VALUES (?,?)&#39;</span><span class="p">,</span> <span class="n">user2songlist_list</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">executemany</span><span class="p">(</span><span class="s1">&#39;INSERT INTO User2SongList VALUES (?,?)&#39;</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">user</span> <span class="k">for</span> <span class="n">user</span> <span class="ow">in</span> <span class="n">user2songlist_list</span> <span class="k">if</span> <span class="n">user</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">new_users</span><span class="p">])))</span>
         <span class="c1"># 用户之间的多对多关系（关注or被关注）</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">executemany</span><span class="p">(</span><span class="s1">&#39;INSERT INTO Follow VALUES (?,?)&#39;</span><span class="p">,</span> <span class="n">follow_list</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db_cursor</span><span class="o">.</span><span class="n">executemany</span><span class="p">(</span><span class="s1">&#39;INSERT INTO Follow VALUES (?,?)&#39;</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">user</span> <span class="k">for</span> <span class="n">user</span> <span class="ow">in</span> <span class="n">follow_list</span> <span class="k">if</span> <span class="n">user</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">new_users</span><span class="p">])))</span>
         <span class="c1"># 提交插入更改请求</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">db_connection</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
     
@@ -13249,7 +13279,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[342]:</div>
+<div class="prompt input_prompt">In&nbsp;[26]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span> <span class="o">=</span> <span class="n">db_cls</span><span class="p">(</span><span class="n">db_filename</span><span class="o">=</span><span class="s2">&quot;pj_data.db&quot;</span><span class="p">)</span>
@@ -13273,7 +13303,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[343]:</div>
+<div class="prompt input_prompt">In&nbsp;[27]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># id：            歌曲url截取出来的，必须转为整数形式输入，最大21亿</span>
@@ -13303,7 +13333,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[344]:</div>
+<div class="prompt input_prompt">In&nbsp;[28]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># 比如一个元组是（1,3），指的是id为1的歌曲，其歌手的id是3</span>
@@ -13322,16 +13352,14 @@ div#notebook {
 <li>db.write_Song_infos(song_infos_list, song2singer_list)调用注意事项</li>
 </ul>
 <p>为了提高数据库写入性能，建议同时写入多首歌信息（比如每爬取100首写入一次）</p>
-<p>！ 注意：请务必保证将写入的歌曲信息不在数据库里，否则会报错 ！</p>
-<p>建议通过集合，先判断每个歌曲id是否之前已经执行写入数据库的命令，
-如果都没被写入过，再调用下方函数。</p>
+<p>！ 注意：可自动判断是否已有重复记录 ！</p>
 
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[345]:</div>
+<div class="prompt input_prompt">In&nbsp;[29]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># 同时写入2首歌曲信息</span>
@@ -13355,16 +13383,14 @@ div#notebook {
 </li>
 </ul>
 <p>为了提高数据库写入性能，建议同时写入多个专辑信息</p>
-<p>！ 注意：请务必保证将写入的专辑信息不在数据库里，否则会报错 ！</p>
-<p>建议通过集合，先判断每个专辑id是否之前已经执行写入数据库的命令，
-如果都没被写入过，再调用下方函数。</p>
+<p>！ 注意：可自动判断是否已有重复记录 ！</p>
 
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[346]:</div>
+<div class="prompt input_prompt">In&nbsp;[30]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># 比如一个元组是（1,&quot;album name 1&quot;），指的是id为1的专辑名称是&quot;album name 1&quot;</span>
@@ -13387,16 +13413,14 @@ div#notebook {
 </li>
 </ul>
 <p>为了提高数据库写入性能，建议同时写入多个歌手信息</p>
-<p>！ 注意：请务必保证将写入的歌手信息不在数据库里，否则会报错 ！</p>
-<p>建议通过集合，先判断每个歌手id是否之前已经执行写入数据库的命令，
-如果都没被写入过，再调用下方函数。</p>
+<p>！ 注意：可自动判断是否已有重复记录 ！</p>
 
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[347]:</div>
+<div class="prompt input_prompt">In&nbsp;[31]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># 比如一个元组是（1,&quot;singer name 1&quot;），指的是id为1的专辑名称是&quot;singer name 1&quot;</span>
@@ -13422,7 +13446,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[348]:</div>
+<div class="prompt input_prompt">In&nbsp;[32]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># id：               歌单url截取出来的，必须转为整数形式输入，最大支持21亿的数字</span>
@@ -13454,7 +13478,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[349]:</div>
+<div class="prompt input_prompt">In&nbsp;[33]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># 比如一个元组是（1,3），指的是id为1的歌单，它的一个歌单标签的id是3</span>
@@ -13478,7 +13502,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[350]:</div>
+<div class="prompt input_prompt">In&nbsp;[34]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># 比如一个元组是（1,3），指的是id为1的歌单，其中的一首歌id是3</span>
@@ -13497,16 +13521,14 @@ div#notebook {
 <li>db.write_SongList_infos(songlist_infos_list, songlist2tag_list, songlist2song_list)调用注意事项</li>
 </ul>
 <p>为了提高数据库写入性能，建议同时写入多个歌单信息</p>
-<p>！ 注意：请务必保证将写入的歌单信息不在数据库里，否则会报错 ！</p>
-<p>建议通过集合，先判断每个歌单id是否之前已经执行写入数据库的命令，
-如果都没被写入过，再调用下方函数。</p>
+<p>！ 注意：可自动判断是否已有重复记录 ！</p>
 
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[351]:</div>
+<div class="prompt input_prompt">In&nbsp;[35]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># 同时写入2个歌单信息</span>
@@ -13531,16 +13553,14 @@ div#notebook {
 </li>
 </ul>
 <p>为了提高数据库写入性能，建议同时写入多个标签信息</p>
-<p>！ 注意：请务必保证将写入的标签信息不在数据库里，否则会报错 ！</p>
-<p>建议通过集合，先判断每个标签id是否之前已经执行写入数据库的命令，
-如果都没被写入过，再调用下方函数。</p>
+<p>！ 注意：可自动判断是否已有重复记录 ！</p>
 
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[352]:</div>
+<div class="prompt input_prompt">In&nbsp;[36]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># 比如一个元组是（1,&quot;tag name 1&quot;），指的是id为1的标签名称是&quot;tag name 1&quot;</span>
@@ -13566,7 +13586,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[353]:</div>
+<div class="prompt input_prompt">In&nbsp;[37]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># id：       用户url截取出来的，必须转为整数形式输入，最大支持21亿的数字</span>
@@ -13594,7 +13614,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[354]:</div>
+<div class="prompt input_prompt">In&nbsp;[38]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># 比如一个元组是（1,3），指的是id为1的用户，TA最近听过的一首歌id是3</span>
@@ -13618,7 +13638,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[355]:</div>
+<div class="prompt input_prompt">In&nbsp;[39]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># 比如一个元组是（1,3），指的是id为1的用户，TA收藏的一个歌单id是3</span>
@@ -13643,7 +13663,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[356]:</div>
+<div class="prompt input_prompt">In&nbsp;[40]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># 比如一个元组是（1,3），指的是id为1的用户关注了id为3的用户</span>
@@ -13662,16 +13682,14 @@ div#notebook {
 <li>db.write_User_infos(user_infos_list, user2song_list, user2songlist_list, follow_list)调用注意事项</li>
 </ul>
 <p>为了提高数据库写入性能，建议同时写入多个用户信息</p>
-<p>！ 注意：请务必保证将写入的用户信息不在数据库里，否则会报错 ！</p>
-<p>建议通过集合，先判断每个用户id是否之前已经执行写入数据库的命令，
-如果都没被写入过，再调用下方函数。</p>
+<p>！ 注意：可自动判断是否已有重复记录 ！</p>
 
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[357]:</div>
+<div class="prompt input_prompt">In&nbsp;[41]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># 同时写入2个用户信息</span>
@@ -13698,7 +13716,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[358]:</div>
+<div class="prompt input_prompt">In&nbsp;[42]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">create_index</span><span class="p">()</span>
@@ -13719,7 +13737,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[359]:</div>
+<div class="prompt input_prompt">In&nbsp;[43]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">db</span><span class="o">.</span><span class="n">read_Data</span><span class="p">(</span><span class="n">sql_query</span><span class="o">=</span><span class="s2">&quot;Select * FROM SongList&quot;</span><span class="p">))</span>
@@ -13761,7 +13779,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[360]:</div>
+<div class="prompt input_prompt">In&nbsp;[44]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># 读取id为1的歌曲名字与评论数</span>
@@ -13803,22 +13821,11 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[361]:</div>
+<div class="prompt input_prompt">In&nbsp;[45]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># 此处只是想把刚刚样例函数写入过的所有记录清除掉。</span>
-<span class="n">db</span><span class="o">.</span><span class="n">delete_table</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;Song&quot;</span><span class="p">)</span>
-<span class="n">db</span><span class="o">.</span><span class="n">delete_table</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;SongList&quot;</span><span class="p">)</span>
-<span class="n">db</span><span class="o">.</span><span class="n">delete_table</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;User_Table&quot;</span><span class="p">)</span>
-<span class="n">db</span><span class="o">.</span><span class="n">delete_table</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;Song2Singer&quot;</span><span class="p">)</span>
-<span class="n">db</span><span class="o">.</span><span class="n">delete_table</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;SongList2Song&quot;</span><span class="p">)</span>
-<span class="n">db</span><span class="o">.</span><span class="n">delete_table</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;SongList2Tag&quot;</span><span class="p">)</span>
-<span class="n">db</span><span class="o">.</span><span class="n">delete_table</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;User2Song&quot;</span><span class="p">)</span>
-<span class="n">db</span><span class="o">.</span><span class="n">delete_table</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;User2SongList&quot;</span><span class="p">)</span>
-<span class="n">db</span><span class="o">.</span><span class="n">delete_table</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;Follow&quot;</span><span class="p">)</span>
-<span class="n">db</span><span class="o">.</span><span class="n">delete_table</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;Album&quot;</span><span class="p">)</span>
-<span class="n">db</span><span class="o">.</span><span class="n">delete_table</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;Singer&quot;</span><span class="p">)</span>
-<span class="n">db</span><span class="o">.</span><span class="n">delete_table</span><span class="p">(</span><span class="n">table_name</span><span class="o">=</span><span class="s2">&quot;Tag&quot;</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># 举个例子</span>
+<span class="c1"># db.delete_table(table_name=&quot;Song&quot;)</span>
 
 <span class="c1"># 此处想把刚刚创建的索引删掉，实际应用中不用删哈</span>
 <span class="n">db</span><span class="o">.</span><span class="n">drop_index</span><span class="p">()</span>
@@ -13839,7 +13846,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[362]:</div>
+<div class="prompt input_prompt">In&nbsp;[46]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">db</span><span class="o">.</span><span class="n">close_db</span><span class="p">()</span>
