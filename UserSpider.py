@@ -29,42 +29,47 @@ class UserSpider:
 
         chrome_options = Options()
         chrome_options.add_argument('--headless')
-        self.driver = driver = webdriver.Chrome("/Users/william/Desktop/global/chromedriver", options=chrome_options)
+        self.driver_home = webdriver.Chrome("/Users/william/Desktop/global/chromedriver", options=chrome_options)
+        self.driver_recent_songs = webdriver.Chrome("/Users/william/Desktop/global/chromedriver", options=chrome_options)
+        self.driver_follows = webdriver.Chrome("/Users/william/Desktop/global/chromedriver", options=chrome_options)
+        
 
         # HOME INFOMATION PAGE https://music.163.com/#/user/home?id=287829691
         # Followers information page https://music.163.com/#/user/follows?id=287829691
         # all song ranks page https://music.163.com/#/user/songs/rank?id=287829691
 
 
-    def getPageSource(self, pageUrl):
-        self.driver.get(pageUrl)
+    def getPageSource(self, pageUrl, driver):
+        driver.get(pageUrl)
         
-        WebDriverWait(self.driver, 50).until(
+        WebDriverWait(driver, 50).until(
             EC.presence_of_all_elements_located((By.TAG_NAME, 'iframe'))
         )
         
-        frame = self.driver.find_elements_by_tag_name('iframe')[0]
-        self.driver.switch_to.frame(frame)
+        frame = driver.find_elements_by_tag_name('iframe')[0]
+        driver.switch_to.frame(frame)
 
-        return self.driver.page_source
+        return driver.page_source
 
     def getRecentSongs(self):
-        pageSource = self.getPageSource(self.songRankUrl)
+        pageSource = self.getPageSource(self.songRankUrl, self.driver_recent_songs)
         bs = BeautifulSoup(pageSource, 'html.parser')
-        
+        # print(self.songRankUrl)
+        # print(pageSource)
         recent_songs = bs.findAll('a', {'href':re.compile('/song*')})
-
+        # print(recent_songs)
         for i in recent_songs:
             song_id = int(i.attrs['href'].split('=')[1])
+            # print(i.get_text())
             self.recent_song_list.append(song_id)
         
 
     def getUserBasicInfo(self):
-        pageSource = self.getPageSource(self.homeUrl)
+        pageSource = self.getPageSource(self.homeUrl, self.driver_home)
         bs = BeautifulSoup(pageSource, 'html.parser')
 
         userLv = bs.find('span', {'class': 'lev u-lev u-icn2 u-icn2-lev'}).get_text()
-        self.lv = userLv
+        self.lv = int(userLv.replace("'", ""))
         #icn u-icn u-icn-01 this class means the user is a male
         #icn u-icn u-icn-02 02 class means the user is a female
         #icn u-icn u-icn-00 this means the user doesnt specifies its gender
@@ -78,8 +83,13 @@ class UserSpider:
             self.gender = 2
         else: self.gender = 0 #default gender
 
+        playlists = bs.findAll('a', {'href': re.compile('/playlist*')})
+        for item in playlists:
+            playlist_id = int(item.attrs['href'].split('=')[1])
+            self.playlists.append(playlist_id)
+
     def getFollows(self):
-        pageSource = self.getPageSource(self.followersUrl)
+        pageSource = self.getPageSource(self.followersUrl, self.driver_follows)
         bs = BeautifulSoup(pageSource, 'html.parser')
 
         follow_user_lists = bs.findAll('a', {'href': re.compile('/user/home*')})
@@ -87,26 +97,20 @@ class UserSpider:
             if(item.get_text() == item.attrs['title']):
                 userid = int(item.attrs['href'].split('=')[1])
                 self.follows_id_list.append(userid)
+ 
 
-      
-
-    def getPlayLists(self):
-        pageSouce = self.getPageSource(self.homeUrl)
-        bs = BeautifulSoup(pageSouce, 'html.parser')
-
-        playlists = bs.findAll('a', {'href': re.compile('/playlist*')})
-        for item in playlists:
-            playlist_id = int(item.attrs['href'].split('=')[1])
-            self.playlists.append(playlist_id)
+    def UserConditionSatisfy20Songs(self):
+        return len(self.recent_song_list) >= 20
 
        
 
     def getAllContents(self):
         try:
+            self.getRecentSongs()
+            if len(self.recent_song_list) < 20:
+                return error
             self.getUserBasicInfo()
             self.getFollows()
-            self.getPlayLists()
-            self.getRecentSongs()
             return "ok"
         except:
             return "error"
@@ -140,6 +144,10 @@ class UserSpider:
 if __name__ == "__main__":
     up = UserSpider('https://music.163.com/#/user/home?id=280574719')
     up.getAllContents()
+    print('userinfo', up.get_user_info())
+    print('user recent songs', up.get_user2song_list())
+    print('user song lists', up.get_user2songlist_list())
+    print('user follow list', up.get_follow_list())
 
     db = db_cls(db_filename="pj_data.db")
     db.write_User_infos(
