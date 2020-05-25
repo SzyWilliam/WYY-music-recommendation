@@ -10,6 +10,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import  expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.action_chains import ActionChains
+from  UserSpider import proxys
 
 class SongSpider:
     def __init__(self, songUrl):
@@ -27,6 +28,7 @@ class SongSpider:
         # chrome_options.add_experimental_option("prefs", {"profile.managed_default_content_settings.images": 2})
         chrome_options.add_argument('--no-sandbox')
         chrome_options.add_argument('--disable-dev-shm-usage')
+        chrome_options.add_argument('--proxy-server={}'.format(random.choice(proxys)))
         #chrome_options.add_argument('--proxy-server=http://183.165.11.69:4216')
 
         self.driver = driver = webdriver.Chrome("../chromedriver", options=chrome_options)
