@@ -118,8 +118,8 @@ class ThreadSafeData:
         
 
 
-def debug_print_thread(msg):
-    print('[*', threading.get_ident(), '*]', msg)
+def debug_print_thread(msg, exe=True):
+    if exe: print('[*', threading.get_ident(), '*]', msg)
 
 class ThreadPool:
     def __init__(self, threadMaxNums = 12):
@@ -129,7 +129,7 @@ class ThreadPool:
         self.databaseWriteInCondi = threading.Condition()
         self.lock_availableThreads = threading.Lock()
         self.dataSpace = ThreadSafeData()
-        self.dataSpace.userSeedsList.put(287829691)
+        self.dataSpace.userSeedsList.put(1856294392)
 
         self.__first_db_initialize_flag = False
 
@@ -149,7 +149,7 @@ class ThreadPool:
             return None
 
     def _thread_scrapyUserAndSave(self, userUrl, threadSafeData):
-        debug_print_thread("new [*user*] thread seed is " + userUrl)
+        debug_print_thread("new [*user*] thread seed is " + userUrl, True)
         res = ThreadPool._util_scrapySingleUser(userUrl)
         if(res != None):
             [user_infos_list, user2song_list, user2songlist_list, follow_list] = res
@@ -181,7 +181,7 @@ class ThreadPool:
             return None
 
     def _thread_scrapySongAndSave(self, songUrl, threadSafeData):
-        debug_print_thread("new [*song*] thread seed is " + songUrl)
+        debug_print_thread("new [*song*] thread seed is " + songUrl, True)
         res = ThreadPool._util_scrapySong(songUrl)
         if(res != None):
             [song_info_tuple, song_artists_list] = res
@@ -214,7 +214,7 @@ class ThreadPool:
             self.lock_availableThreads.acquire()
             for i in range(self.currentAvailThreads):
                 if self.dataSpace.userSeedsList.empty():
-                    debug_print_thread('current seed list empty')
+                    debug_print_thread('current seed list empty', True)
                     break
                 else:                    
                     debug_print_thread('start a new thread')
@@ -268,12 +268,12 @@ class ThreadPool:
                     
                     
                     songs = db.read_Data(sql_query="Select * FROM Song")
-                    debug_print_thread("Main Thread, display all available songs, totally " + str(len(songs)))
+                    debug_print_thread("Main Thread, display all available songs, totally " + str(len(songs)), True)
                     for song in songs:
                         debug_print_thread(song)
 
                     users = db.read_Data(sql_query='Select * FROM User_Table')
-                    debug_print_thread("Main Thread, display all available users, totally " + str(len(users)))
+                    debug_print_thread("Main Thread, display all available users, totally " + str(len(users)), True)
                     for user in users:
                         debug_print_thread(user)
                     db.close_db()
@@ -293,7 +293,7 @@ class ThreadPool:
 
 if __name__ == "__main__":
     try:
-        tp = ThreadPool(threadMaxNums=4)
+        tp = ThreadPool(threadMaxNums=12)
         threadingMain = threading.Thread(target=tp.mainThread, args=())
         threadingListener = threading.Thread(target=tp.listenerThread, args=())
         threadDb = threading.Thread(target=tp.databaseWriteInThread, args=())
@@ -314,11 +314,3 @@ if __name__ == "__main__":
 
 
     
-
-
-
-
-    
-
-
-

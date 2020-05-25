@@ -29,9 +29,12 @@ class UserSpider:
 
         chrome_options = Options()
         chrome_options.add_argument('--headless')
-        self.driver_home = webdriver.Chrome("/Users/william/Desktop/global/chromedriver", options=chrome_options)
-        self.driver_recent_songs = webdriver.Chrome("/Users/william/Desktop/global/chromedriver", options=chrome_options)
-        self.driver_follows = webdriver.Chrome("/Users/william/Desktop/global/chromedriver", options=chrome_options)
+        chrome_options.add_argument('--no-sandbox')
+        chrome_options.add_argument('--disable-dev-shm-usage')
+        #chrome_options.add_argument('--proxy-server=http://183.165.11.69:4216')
+        self.driver_home = webdriver.Chrome("../chromedriver", options=chrome_options)
+        self.driver_recent_songs = webdriver.Chrome("../chromedriver", options=chrome_options)
+        self.driver_follows = webdriver.Chrome("../chromedriver", options=chrome_options)
         
 
         # HOME INFOMATION PAGE https://music.163.com/#/user/home?id=287829691
