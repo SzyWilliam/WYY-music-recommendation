@@ -29,6 +29,7 @@ class UserSpider:
 
         chrome_options = Options()
         chrome_options.add_argument('--headless')
+        chrome_options.add_argument('--proxy-server=http://111.222.141.127:8118')
         self.driver_home = webdriver.Chrome("/Users/william/Desktop/global/chromedriver", options=chrome_options)
         self.driver_recent_songs = webdriver.Chrome("/Users/william/Desktop/global/chromedriver", options=chrome_options)
         self.driver_follows = webdriver.Chrome("/Users/william/Desktop/global/chromedriver", options=chrome_options)

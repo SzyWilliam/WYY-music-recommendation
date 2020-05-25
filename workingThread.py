@@ -129,7 +129,7 @@ class ThreadPool:
         self.databaseWriteInCondi = threading.Condition()
         self.lock_availableThreads = threading.Lock()
         self.dataSpace = ThreadSafeData()
-        self.dataSpace.userSeedsList.put(287829691)
+        self.dataSpace.userSeedsList.put(1856294392)
 
         self.__first_db_initialize_flag = False
 
