@@ -25,9 +25,11 @@ class SongSpider:
         chrome_options.add_argument('--headless')
         # chrome_options.add_argument('user-agent={0}'.format('MQQBrowser/26 Mozilla/5.0 (Linux; U; Android 2.3.7; zh-cn; MB200 Build/GRJ22; CyanogenMod-7) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1'))
         # chrome_options.add_experimental_option("prefs", {"profile.managed_default_content_settings.images": 2})
+        chrome_options.add_argument('--no-sandbox')
+        chrome_options.add_argument('--disable-dev-shm-usage')
+        #chrome_options.add_argument('--proxy-server=http://183.165.11.69:4216')
 
-
-        self.driver = driver = webdriver.Chrome("/Users/william/Desktop/global/chromedriver", options=chrome_options)
+        self.driver = driver = webdriver.Chrome("../chromedriver", options=chrome_options)
 
 
     def getPageSource(self):
