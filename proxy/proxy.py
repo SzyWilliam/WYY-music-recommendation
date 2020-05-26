@@ -58,7 +58,6 @@ def API_read_proxy(API_Url):
 
 if __name__ == '__main__':
     proxy_list = API_read_proxy()
-    # proxy_list = []
     valid_proxy_list = check_all_proxy(proxy_list)
     print('--'*30)
     print(valid_proxy_list)
