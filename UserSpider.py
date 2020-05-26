@@ -12,7 +12,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import  expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.action_chains import ActionChains
-from workingThread import debug_print_thread
+def debug_print_thread(msg, exe=True):
+    if exe: print('[*', threading.get_ident(), '*]', msg)
 
 class UserSpider:
     def __init__(self, Url, proxy_url):
