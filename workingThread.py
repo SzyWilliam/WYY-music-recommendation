@@ -211,16 +211,13 @@ class ThreadPool:
         )
         return thread
     
-    def updateProxy():
-        proxylist = proxy.get_all_proxy()
-        validproxy = proxy.check_all_proxy(proxylist)
-        return random.choice(validproxy)
 
     def mainThread(self):
-        proxyUrl = ThreadPool.updateProxy()
+        proxy_table = proxy.API_read_proxy()
         while True:
             self.lock_availableThreads.acquire()
             for i in range(self.currentAvailThreads):
+                proxyUrl = random.choice(proxy_table)
                 if self.dataSpace.userSeedsList.empty():
                     debug_print_thread('current seed list empty', True)
                     break
