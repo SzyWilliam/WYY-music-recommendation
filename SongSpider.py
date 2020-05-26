@@ -30,7 +30,7 @@ class SongSpider:
         # chrome_options.add_experimental_option("prefs", {"profile.managed_default_content_settings.images": 2})
         chrome_options.add_argument('--no-sandbox')
         chrome_options.add_argument('--disable-dev-shm-usage')
-        chrome_options.add_argument('--proxy-server={}'.format(proxy_url))
+        # chrome_options.add_argument('--proxy-server={}'.format(proxy_url))
         chrome_options.add_experimental_option('excludeSwitches', ['enable-automation'])
         debug_print_thread("we are using proxy sever with url " + proxy_url)
         #chrome_options.add_argument('--proxy-server=http://183.165.11.69:4216')
