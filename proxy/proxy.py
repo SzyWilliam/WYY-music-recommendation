@@ -31,7 +31,8 @@ def check_all_proxy(proxy_list):
                 print('代理可用：' + proxy)
                 print('耗时:' + str(end_time - start_time))
                 valid_proxy_list.append(proxy)
-                return valid_proxy_list
+                if len(valid_proxy_list) >= 5:
+                    return valid_proxy_list
             else:
                 print('代理超时')
         except:
