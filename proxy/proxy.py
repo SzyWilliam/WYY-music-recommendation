@@ -1,6 +1,7 @@
 import requests
 from lxml import etree
 import time
+from urllib import request
 def get_all_proxy():
     url = 'https://www.xicidaili.com'
     headers = {
@@ -43,9 +44,20 @@ def check_all_proxy(proxy_list):
             print('代理不可用--------------->'+proxy)
     return valid_proxy_list
 
+
+def API_read_proxy(API_Url):
+    API_Proxys = []
+    content = request.urlopen(API_Url).read()
+    API_Proxys = content.splitlines()
+    for proxy in API_Proxys:
+        proxy = "http://" + proxy
+    return API_Proxys
+    
+
+
+
 if __name__ == '__main__':
-    proxy_list = get_all_proxy()
-    # proxy_list = []
+    proxy_list = API_read_proxy()
     valid_proxy_list = check_all_proxy(proxy_list)
     print('--'*30)
     print(valid_proxy_list)
