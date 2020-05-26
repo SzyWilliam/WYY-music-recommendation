@@ -12,10 +12,9 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import  expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.action_chains import ActionChains
-proxys = ['http://125.123.157.41:3000', 'http://183.165.11.69:4216', 'http://117.69.153.106:4216', 'http://223.214.206.11:4216', 'http://124.112.215.25:4216', 'http://223.214.196.226:4216', 'http://114.98.24.204:4216', 'http://219.146.127.6:8060', 'http://114.99.54.65:8118', 'http://125.123.159.254:3000', 'http://183.166.162.222:4216', 'http://117.69.170.254:4216']
 
 class UserSpider:
-    def __init__(self, Url):
+    def __init__(self, Url, proxy_url):
         self.songUrl = Url
         self.id = int(self.songUrl.split('=')[1])
         self.lv = -1
@@ -33,7 +32,7 @@ class UserSpider:
         chrome_options.add_argument('--headless')
         chrome_options.add_argument('--no-sandbox')
         chrome_options.add_argument('--disable-dev-shm-usage')
-        chrome_options.add_argument('--proxy-server={}'.format(random.choice(proxys)))
+        chrome_options.add_argument('--proxy-server={}'.format(proxy_url))
         self.driver_home = webdriver.Chrome("../chromedriver", options=chrome_options)
         self.driver_recent_songs = webdriver.Chrome("../chromedriver", options=chrome_options)
         self.driver_follows = webdriver.Chrome("../chromedriver", options=chrome_options)

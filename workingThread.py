@@ -17,6 +17,7 @@ from database_demo import db_cls
 import threading
 import time
 import random
+import proxy.proxy as proxy
 
 class ThreadSafeData:
     def __init__(self):
@@ -133,8 +134,8 @@ class ThreadPool:
 
         self.__first_db_initialize_flag = False
 
-    def _util_scrapySingleUser(userUrl):
-        up = UserSpider(userUrl)
+    def _util_scrapySingleUser(userUrl, proxyUrl):
+        up = UserSpider(userUrl, proxyUrl)
         # up.getAllContents()
         res = up.getAllContents()
         if not up.UserConditionSatisfy20Songs():
@@ -148,9 +149,9 @@ class ThreadPool:
         else:
             return None
 
-    def _thread_scrapyUserAndSave(self, userUrl, threadSafeData):
+    def _thread_scrapyUserAndSave(self, userUrl, threadSafeData, proxyUrl):
         debug_print_thread("new [*user*] thread seed is " + userUrl, True)
-        res = ThreadPool._util_scrapySingleUser(userUrl)
+        res = ThreadPool._util_scrapySingleUser(userUrl, proxyUrl)
         if(res != None):
             [user_infos_list, user2song_list, user2songlist_list, follow_list] = res
             debug_print_thread('adding new to data')
@@ -169,8 +170,8 @@ class ThreadPool:
         self.currentAvailThreads += 1
         self.lock_availableThreads.release()
 
-    def _util_scrapySong(songUrl):
-        sp = SongSpider(songUrl)
+    def _util_scrapySong(songUrl, proxyUrl):
+        sp = SongSpider(songUrl, proxyUrl)
         res = sp.getInfo(sp.getPageSource())
         if res == "ok":
             song_info = sp.getSongRequiredTuple()
@@ -180,9 +181,9 @@ class ThreadPool:
             debug_print_thread("song info not valid, returning None")
             return None
 
-    def _thread_scrapySongAndSave(self, songUrl, threadSafeData):
+    def _thread_scrapySongAndSave(self, songUrl, threadSafeData, proxyUrl):
         debug_print_thread("new [*song*] thread seed is " + songUrl, True)
-        res = ThreadPool._util_scrapySong(songUrl)
+        res = ThreadPool._util_scrapySong(songUrl, proxyUrl)
         if(res != None):
             [song_info_tuple, song_artists_list] = res
             threadSafeData.addNewSongs_threadSafe(
@@ -194,22 +195,29 @@ class ThreadPool:
         self.currentAvailThreads += 1
         self.lock_availableThreads.release()
 
-    def newThread_User(self, userUrl):
+    def newThread_User(self, userUrl, proxyUrl):
         
         thread = threading.Thread(
             target=ThreadPool._thread_scrapyUserAndSave,
-            args=(self, userUrl, self.dataSpace)
+            args=(self, userUrl, self.dataSpace, proxyUrl)
         )
         return thread        
         
-    def newThread_Song(self, songUrl):
+    def newThread_Song(self, songUrl, proxyUrl):
         thread = threading.Thread(
             target=ThreadPool._thread_scrapySongAndSave,
-            args=(self, songUrl, self.dataSpace)
+            args=(self, songUrl, self.dataSpace, proxyUrl),
+            
         )
         return thread
+    
+    def updateProxy():
+        proxylist = proxy.get_all_proxy()
+        validproxy = proxy.check_all_proxy(proxylist)
+        return random.choice(validproxy)
 
     def mainThread(self):
+        proxyUrl = ThreadPool.updateProxy()
         while True:
             self.lock_availableThreads.acquire()
             for i in range(self.currentAvailThreads):
@@ -224,12 +232,12 @@ class ThreadPool:
                     elif self.dataSpace.songSeedsList.empty(): randres = 1
                     if(randres == 1): #then next user
                         id_next = self.dataSpace.userSeedsList.get()
-                        user_thread = self.newThread_User('https://music.163.com/#/user/home?id=' + str(id_next))
+                        user_thread = self.newThread_User('https://music.163.com/#/user/home?id=' + str(id_next), proxyUrl)
                         user_thread.start()
                         self.currentAvailThreads -= 1
                     elif (randres == 2): #then next song
                         id_next = self.dataSpace.songSeedsList.get()
-                        song_thread = self.newThread_Song('https://music.163.com/#/song?id=' + str(id_next))
+                        song_thread = self.newThread_Song('https://music.163.com/#/song?id=' + str(id_next), proxyUrl)
                         song_thread.start()
                         self.currentAvailThreads -= 1
 
