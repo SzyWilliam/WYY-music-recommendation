@@ -49,4 +49,3 @@ if __name__ == '__main__':
     valid_proxy_list = check_all_proxy(proxy_list)
     print('--'*30)
     print(valid_proxy_list)
-
