@@ -28,7 +28,7 @@ def check_all_proxy(proxy_list):
         }
         try:
             start_time = time.time()
-            response = requests.get(url, proxies=proxy_dict, timeout=5)
+            response = requests.get(url, timeout=5)
             contents = response.content.decode('utf-8')
             if response.status_code == 200 and contents.find("n-for404") == -1:
                 
@@ -59,6 +59,7 @@ def API_read_proxy(API_Url):
 
 if __name__ == '__main__':
     proxy_list = API_read_proxy('http://ip.16yun.cn:817/myip/pl/2f9a681e-d91c-4eca-bbac-20fb13b2bdd9/?s=rxayvqswos&u=WS')
+    proxy_list = []
     valid_proxy_list = check_all_proxy(proxy_list)
     print('--'*30)
     print(valid_proxy_list)
