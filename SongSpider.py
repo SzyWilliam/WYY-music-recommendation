@@ -36,6 +36,9 @@ class SongSpider:
         #chrome_options.add_argument('--proxy-server=http://183.165.11.69:4216')
 
         self.driver = driver = webdriver.Chrome("../chromedriver", options=chrome_options)
+        script = '''Object.defineProperty(navigator, 'webdriver', {get: () => undefined})
+'''
+        self.driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {"source": script})
 
 
     def getPageSource(self):

@@ -42,7 +42,11 @@ class UserSpider:
         self.driver_home = webdriver.Chrome("../chromedriver", options=chrome_options)
         self.driver_recent_songs = webdriver.Chrome("../chromedriver", options=chrome_options)
         self.driver_follows = webdriver.Chrome("../chromedriver", options=chrome_options)
-        
+        script = '''Object.defineProperty(navigator, 'webdriver', {get: () => undefined})
+'''
+        self.driver_home.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {"source": script})
+        self.driver_recent_songs.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {"source": script})
+        self.driver_follows.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {"source": script})
 
         # HOME INFOMATION PAGE https://music.163.com/#/user/home?id=287829691
         # Followers information page https://music.163.com/#/user/follows?id=287829691
