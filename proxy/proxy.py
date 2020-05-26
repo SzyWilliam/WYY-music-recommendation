@@ -31,7 +31,7 @@ def check_all_proxy(proxy_list):
             response = requests.get(url, proxies=proxy_dict, timeout=5)
             contents = response.content.decode('utf-8')
             if response.status_code == 200 and contents.find("n-for404") == -1:
-                # print(contents)
+                
                 end_time = time.time()
                 print('代理可用：' + proxy)
                 print('耗时:' + str(end_time - start_time))
@@ -39,6 +39,7 @@ def check_all_proxy(proxy_list):
                 if len(valid_proxy_list) >= 5:
                     return valid_proxy_list
             else:
+                print(contents)
                 print('代理超时')
         except:
             print('代理不可用--------------->'+proxy)
@@ -47,7 +48,7 @@ def check_all_proxy(proxy_list):
 
 def API_read_proxy(API_Url):
     API_Proxys = []
-    content = request.urlopen(API_Url).read()
+    content = request.urlopen(API_Url).read().decode('utf-8')
     API_Proxys = content.splitlines()
     for proxy in API_Proxys:
         proxy = "http://" + proxy
@@ -57,7 +58,7 @@ def API_read_proxy(API_Url):
 
 
 if __name__ == '__main__':
-    proxy_list = API_read_proxy()
+    proxy_list = API_read_proxy('http://ip.16yun.cn:817/myip/pl/2f9a681e-d91c-4eca-bbac-20fb13b2bdd9/?s=rxayvqswos&u=WS')
     valid_proxy_list = check_all_proxy(proxy_list)
     print('--'*30)
     print(valid_proxy_list)

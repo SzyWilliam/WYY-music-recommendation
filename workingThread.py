@@ -213,7 +213,7 @@ class ThreadPool:
     
 
     def mainThread(self):
-        proxy_table = proxy.API_read_proxy()
+        proxy_table = proxy.API_read_proxy('http://ip.16yun.cn:817/myip/pl/2f9a681e-d91c-4eca-bbac-20fb13b2bdd9/?s=rxayvqswos&u=WS')
         while True:
             self.lock_availableThreads.acquire()
             for i in range(self.currentAvailThreads):
