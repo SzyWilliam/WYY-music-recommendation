@@ -12,6 +12,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import  expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.action_chains import ActionChains
+from workingThread import debug_print_thread
 
 class UserSpider:
     def __init__(self, Url, proxy_url):
@@ -33,6 +34,7 @@ class UserSpider:
         chrome_options.add_argument('--no-sandbox')
         chrome_options.add_argument('--disable-dev-shm-usage')
         chrome_options.add_argument('--proxy-server={}'.format(proxy_url))
+        debug_print_thread("we are using proxy sever with url " + proxy_url)
         self.driver_home = webdriver.Chrome("../chromedriver", options=chrome_options)
         self.driver_recent_songs = webdriver.Chrome("../chromedriver", options=chrome_options)
         self.driver_follows = webdriver.Chrome("../chromedriver", options=chrome_options)
