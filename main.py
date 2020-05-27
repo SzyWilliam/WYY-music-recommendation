@@ -5,6 +5,8 @@ import time
 from queue import Queue
 import threading
 
+
+#zhushi
 maxNum = 1000
 #global_data_structure:
 id_seed_list = Queue(maxNum)
