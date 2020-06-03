@@ -13,6 +13,9 @@ from selenium.webdriver.support import  expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.action_chains import ActionChains
 import threading
+
+config_chrome_path = "/Users/william/Desktop/global/chromedriver_3"
+
 def debug_print_thread(msg, exe=True):
     if exe: print('[*', threading.get_ident(), '*]', msg)
 
@@ -33,20 +36,20 @@ class UserSpider:
 
         chrome_options = Options()
         chrome_options.add_argument('--headless')
-        chrome_options.add_argument('--no-sandbox')
-        chrome_options.add_argument('--disable-dev-shm-usage')
+        # chrome_options.add_argument('--no-sandbox')
+        # chrome_options.add_argument('--disable-dev-shm-usage')
         # chrome_options.add_argument('--proxy-server={}'.format(proxy_url))
-        #chrome_options.add_experimental_option('excludeSwitches', ['enable-automation'])
-        chrome_options.add_argument('user-agent={0}'.format('MQQBrowser/26 Mozilla/5.0 (Linux; U; Android 2.3.7; zh-cn; MB200 Build/GRJ22; CyanogenMod-7) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1'))
-        debug_print_thread("we are using proxy sever with url " + proxy_url)
-        self.driver_home = webdriver.Chrome("../chromedriver", options=chrome_options)
-        self.driver_recent_songs = webdriver.Chrome("../chromedriver", options=chrome_options)
-        self.driver_follows = webdriver.Chrome("../chromedriver", options=chrome_options)
-        script = '''Object.defineProperty(navigator, 'webdriver', {get: () => undefined})
-'''
-        #self.driver_home.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {"source": script})
-        #self.driver_recent_songs.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {"source": script})
-        #self.driver_follows.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {"source": script})
+        # chrome_options.add_experimental_option('excludeSwitches', ['enable-automation'])
+        # chrome_options.add_argument('user-agent={0}'.format('MQQBrowser/26 Mozilla/5.0 (Linux; U; Android 2.3.7; zh-cn; MB200 Build/GRJ22; CyanogenMod-7) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1'))
+        # debug_print_thread("we are using proxy sever with url " + proxy_url)
+        self.driver_home = webdriver.Chrome(config_chrome_path, options=chrome_options)
+        self.driver_recent_songs = webdriver.Chrome(config_chrome_path, options=chrome_options)
+        self.driver_follows = webdriver.Chrome(config_chrome_path, options=chrome_options)
+#         script = '''Object.defineProperty(navigator, 'webdriver', {get: () => undefined})
+# '''
+#         self.driver_home.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {"source": script})
+#         self.driver_recent_songs.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {"source": script})
+#         self.driver_follows.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {"source": script}}
 
         # HOME INFOMATION PAGE https://music.163.com/#/user/home?id=287829691
         # Followers information page https://music.163.com/#/user/follows?id=287829691
@@ -69,7 +72,7 @@ class UserSpider:
         pageSource = self.getPageSource(self.songRankUrl, self.driver_recent_songs)
         bs = BeautifulSoup(pageSource, 'html.parser')
         # print(self.songRankUrl)
-        # print(pageSource)
+        print(pageSource)
         recent_songs = bs.findAll('a', {'href':re.compile('/song*')})
         # print(recent_songs)
         for i in recent_songs:
@@ -120,14 +123,19 @@ class UserSpider:
 
     def getAllContents(self):
         try:
+            
             self.getRecentSongs()
             if len(self.recent_song_list) < 20:
-                return error
+                return "error"
             self.getUserBasicInfo()
             self.getFollows()
             return "ok"
         except:
             return "error"
+        finally:
+            self.driver_home.quit()
+            self.driver_recent_songs.quit()
+            self.driver_follows.quit()
 
     #return the user info tuple
     def get_user_info(self):
@@ -156,7 +164,11 @@ class UserSpider:
 
 
 if __name__ == "__main__":
+<<<<<<< HEAD
     up = UserSpider('https://music.163.com/#/user/home?id=280574719', 'asasasa')
+=======
+    up = UserSpider('https://music.163.com/#/user/home?id=533335591', 'asd')
+>>>>>>> 83dd4e4783f109fdc454b72b042eb8db2edf4654
     up.getAllContents()
     print('userinfo', up.get_user_info())
     print('user recent songs', up.get_user2song_list())
@@ -170,7 +182,7 @@ if __name__ == "__main__":
         user2songlist_list=up.get_user2songlist_list(),
         follow_list=up.get_follow_list()
     )
-    db.create_index()
+    # db.create_index()
 
     print(db.read_Data(sql_query="Select * FROM User_Table"))
     db.close_db()
