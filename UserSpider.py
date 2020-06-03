@@ -36,7 +36,7 @@ class UserSpider:
         chrome_options.add_argument('--no-sandbox')
         chrome_options.add_argument('--disable-dev-shm-usage')
         # chrome_options.add_argument('--proxy-server={}'.format(proxy_url))
-        chrome_options.add_experimental_option('excludeSwitches', ['enable-automation'])
+        #chrome_options.add_experimental_option('excludeSwitches', ['enable-automation'])
         chrome_options.add_argument('user-agent={0}'.format('MQQBrowser/26 Mozilla/5.0 (Linux; U; Android 2.3.7; zh-cn; MB200 Build/GRJ22; CyanogenMod-7) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1'))
         debug_print_thread("we are using proxy sever with url " + proxy_url)
         self.driver_home = webdriver.Chrome("../chromedriver", options=chrome_options)
@@ -44,9 +44,9 @@ class UserSpider:
         self.driver_follows = webdriver.Chrome("../chromedriver", options=chrome_options)
         script = '''Object.defineProperty(navigator, 'webdriver', {get: () => undefined})
 '''
-        self.driver_home.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {"source": script})
-        self.driver_recent_songs.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {"source": script})
-        self.driver_follows.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {"source": script})
+        #self.driver_home.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {"source": script})
+        #self.driver_recent_songs.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {"source": script})
+        #self.driver_follows.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {"source": script})
 
         # HOME INFOMATION PAGE https://music.163.com/#/user/home?id=287829691
         # Followers information page https://music.163.com/#/user/follows?id=287829691
@@ -156,7 +156,7 @@ class UserSpider:
 
 
 if __name__ == "__main__":
-    up = UserSpider('https://music.163.com/#/user/home?id=280574719')
+    up = UserSpider('https://music.163.com/#/user/home?id=280574719', 'asasasa')
     up.getAllContents()
     print('userinfo', up.get_user_info())
     print('user recent songs', up.get_user2song_list())
