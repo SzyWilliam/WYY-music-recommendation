@@ -10,6 +10,9 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import  expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.action_chains import ActionChains
+from UserSpider import config_chrome_path
+
+
 import threading
 def debug_print_thread(msg, exe=True):
     if exe: print('[*', threading.get_ident(), '*]', msg)
@@ -26,19 +29,19 @@ class SongSpider:
 
         chrome_options = Options()
         chrome_options.add_argument('--headless')
-        chrome_options.add_argument('user-agent={0}'.format('MQQBrowser/26 Mozilla/5.0 (Linux; U; Android 2.3.7; zh-cn; MB200 Build/GRJ22; CyanogenMod-7) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1'))
+        # chrome_options.add_argument('user-agent={0}'.format('MQQBrowser/26 Mozilla/5.0 (Linux; U; Android 2.3.7; zh-cn; MB200 Build/GRJ22; CyanogenMod-7) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1'))
         # chrome_options.add_experimental_option("prefs", {"profile.managed_default_content_settings.images": 2})
-        chrome_options.add_argument('--no-sandbox')
-        chrome_options.add_argument('--disable-dev-shm-usage')
+        # chrome_options.add_argument('--no-sandbox')
+        # chrome_options.add_argument('--disable-dev-shm-usage')
         # chrome_options.add_argument('--proxy-server={}'.format(proxy_url))
-        chrome_options.add_experimental_option('excludeSwitches', ['enable-automation'])
-        debug_print_thread("we are using proxy sever with url " + proxy_url)
+        # chrome_options.add_experimental_option('excludeSwitches', ['enable-automation'])
+        # debug_print_thread("we are using proxy sever with url " + proxy_url)
         #chrome_options.add_argument('--proxy-server=http://183.165.11.69:4216')
 
-        self.driver = driver = webdriver.Chrome("../chromedriver", options=chrome_options)
-        script = '''Object.defineProperty(navigator, 'webdriver', {get: () => undefined})
-'''
-        self.driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {"source": script})
+        self.driver = driver = webdriver.Chrome(config_chrome_path, options=chrome_options)
+#         script = '''Object.defineProperty(navigator, 'webdriver', {get: () => undefined})
+# '''
+#         self.driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {"source": script})
 
 
     def getPageSource(self):
@@ -105,6 +108,8 @@ class SongSpider:
             return "error"
         except:
             return "error"
+        finally:
+            self.driver.close()
 
 
 #return tuple(tuple(song_info), list[tuples of song_artists])
@@ -116,9 +121,10 @@ def timeit(func, **arg):
     return (end-start)
 
 if __name__ == "__main__":
-    sp = SongSpider('https://music.163.com/#/song?id=186453')
+    sp = SongSpider('https://music.163.com/#/song?id=186453', 'as')
     start = time.time()
     a = sp.getPageSource()
+    print(a)
     end = time.time()
     print('dynamic rendering ' , end-start)
     start = time.time()
