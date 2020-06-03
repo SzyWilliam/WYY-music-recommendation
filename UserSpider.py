@@ -14,7 +14,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.action_chains import ActionChains
 import threading
 
-config_chrome_path = "/Users/william/Desktop/global/chromedriver_3"
+config_chrome_path = "../chromedriver"
 config_is_ubuntu = True
 
 def debug_print_thread(msg, exe=True):

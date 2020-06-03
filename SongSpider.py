@@ -49,12 +49,12 @@ class SongSpider:
 
         self.driver.get(self.songUrl)
         
-        WebDriverWait(self.driver, 5).until(
-            EC.presence_of_all_elements_located((By.TAG_NAME, 'iframe'))
-        )
+        #WebDriverWait(self.driver, 5).until(
+        #    EC.presence_of_all_elements_located((By.TAG_NAME, 'iframe'))
+        #)
         
-        frame = self.driver.find_elements_by_tag_name('iframe')[0]
-        self.driver.switch_to.frame(frame)
+        #frame = self.driver.find_elements_by_tag_name('iframe')[0]
+        #self.driver.switch_to.frame(frame)
 
         return self.driver.page_source
 

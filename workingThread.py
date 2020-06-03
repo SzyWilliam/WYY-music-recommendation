@@ -119,18 +119,18 @@ class ThreadSafeData:
         
 
 
-def debug_print_thread(msg, exe=True):
+def debug_print_thread(msg, exe=False):
     if exe: print('[*', threading.get_ident(), '*]', msg)
 
 class ThreadPool:
-    def __init__(self, threadMaxNums = 12):
+    def __init__(self, threadMaxNums = 1):
         self.THREAD_MAX = threadMaxNums
         self.currentAvailThreads = self.THREAD_MAX
         self.availThreadCondi = threading.Condition()
         self.databaseWriteInCondi = threading.Condition()
         self.lock_availableThreads = threading.Lock()
         self.dataSpace = ThreadSafeData()
-        self.dataSpace.userSeedsList.put(1856294392)
+        self.dataSpace.userSeedsList.put(54269568)
 
         self.__first_db_initialize_flag = False
 
