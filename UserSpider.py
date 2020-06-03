@@ -14,7 +14,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.action_chains import ActionChains
 import threading
 
-config_chrome_path = "/Users/william/Desktop/global/chromedriver_3"
+config_chrome_path = "../chromedriver"
 
 def debug_print_thread(msg, exe=True):
     if exe: print('[*', threading.get_ident(), '*]', msg)
@@ -164,11 +164,7 @@ class UserSpider:
 
 
 if __name__ == "__main__":
-<<<<<<< HEAD
-    up = UserSpider('https://music.163.com/#/user/home?id=280574719', 'asasasa')
-=======
     up = UserSpider('https://music.163.com/#/user/home?id=533335591', 'asd')
->>>>>>> 83dd4e4783f109fdc454b72b042eb8db2edf4654
     up.getAllContents()
     print('userinfo', up.get_user_info())
     print('user recent songs', up.get_user2song_list())
