@@ -37,7 +37,7 @@ class SongSpider:
         # chrome_options.add_argument('--proxy-server={}'.format(proxy_url))
         # chrome_options.add_experimental_option('excludeSwitches', ['enable-automation'])
         # debug_print_thread("we are using proxy sever with url " + proxy_url)
-        #chrome_options.add_argument('--proxy-server=http://183.165.11.69:4216')
+        # chrome_options.add_argument('--proxy-server=http://114.98.27.147:4216')
 
         self.driver = driver = webdriver.Chrome(config_chrome_path, options=chrome_options)
 #         script = '''Object.defineProperty(navigator, 'webdriver', {get: () => undefined})
@@ -49,12 +49,12 @@ class SongSpider:
 
         self.driver.get(self.songUrl)
         
-        #WebDriverWait(self.driver, 5).until(
-        #    EC.presence_of_all_elements_located((By.TAG_NAME, 'iframe'))
-        #)
+        WebDriverWait(self.driver, 5).until(
+           EC.presence_of_all_elements_located((By.TAG_NAME, 'iframe'))
+        )
         
-        #frame = self.driver.find_elements_by_tag_name('iframe')[0]
-        #self.driver.switch_to.frame(frame)
+        frame = self.driver.find_elements_by_tag_name('iframe')[0]
+        self.driver.switch_to.frame(frame)
 
         return self.driver.page_source
 
