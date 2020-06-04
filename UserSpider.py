@@ -82,7 +82,7 @@ class UserSpider:
         pageSource = self.getPageSource(self.songRankUrl, self.driver_recent_songs)
         bs = BeautifulSoup(pageSource, 'html.parser')
         # print(self.songRankUrl)
-        print(pageSource)
+        #print(pageSource)
         recent_songs = bs.findAll('a', {'href':re.compile('/song*')})
         # print(recent_songs)
         for i in recent_songs:
