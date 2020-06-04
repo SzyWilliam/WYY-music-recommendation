@@ -23,7 +23,7 @@ import random
 import proxy
 import os
 
-visited_user_list = []
+visited_user_list = [1]
 visited_song_list = []
 
 
@@ -57,16 +57,19 @@ class ThreadSafeData:
         self.db = db_cls(db_filename = db_filename)
         global visited_song_list
         global visited_user_list
-        visited_song_list.clear()
-        visited_user_list.clear()
+
 
         vsongs = self.db.read_Data("Select * from Song")
         for eachSong in vsongs:
-            visited_song_list.append(list(eachSong)[0])
+            id = list(eachSong)[0]
+            if id not in visited_song_list:
+                visited_song_list.append(id)
         
         vusers = self.db.read_Data("Select * from User_Table")
         for eachUser in vusers:
-            visited_user_list.append(list(eachUser)[0])
+            id = list(eachUser)[0]
+            if id not in visited_user_list:
+                visited_user_list.append(list(eachUser)[0])
 
 
 
