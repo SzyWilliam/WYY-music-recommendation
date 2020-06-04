@@ -10,6 +10,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import  expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.proxy import ProxyType, Proxy
 from UserSpider import config_chrome_path, config_is_ubuntu
 
 
@@ -28,18 +29,24 @@ class SongSpider:
         self.artists = []
 
         chrome_options = Options()
+        prox = Proxy()
+        prox.proxy_type = ProxyType.MANUAL
+        prox.http_proxy = proxy_url
+        capabilities = webdriver.DesiredCapabilities.CHROME
+        prox.add_to_capabilities(capabilities)
         chrome_options.add_argument('--headless')
         # chrome_options.add_argument('user-agent={0}'.format('MQQBrowser/26 Mozilla/5.0 (Linux; U; Android 2.3.7; zh-cn; MB200 Build/GRJ22; CyanogenMod-7) AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1'))
         # chrome_options.add_experimental_option("prefs", {"profile.managed_default_content_settings.images": 2})
         if config_is_ubuntu:
             chrome_options.add_argument('--no-sandbox')
             chrome_options.add_argument('--disable-dev-shm-usage')
+        # chrome_options.add_argument('--proxy-server=http://111.222.141.127:8118')
         # chrome_options.add_argument('--proxy-server={}'.format(proxy_url))
         # chrome_options.add_experimental_option('excludeSwitches', ['enable-automation'])
         # debug_print_thread("we are using proxy sever with url " + proxy_url)
         # chrome_options.add_argument('--proxy-server=http://114.98.27.147:4216')
 
-        self.driver = webdriver.Chrome(config_chrome_path, options=chrome_options)
+        self.driver = webdriver.Chrome(config_chrome_path, options=chrome_options, desired_capabilities=capabilities)
 #         script = '''Object.defineProperty(navigator, 'webdriver', {get: () => undefined})
 # '''
 #         self.driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {"source": script})
@@ -49,8 +56,8 @@ class SongSpider:
 
         self.driver.get(self.songUrl)
         
-        WebDriverWait(self.driver, 5).until(
-           EC.presence_of_all_elements_located((By.TAG_NAME, 'iframe'))
+        WebDriverWait(self.driver, 40).until(
+           EC.presence_of_all_elements_located((By.TAG_NAME, 'a'))
         )
         
         frame = self.driver.find_elements_by_tag_name('iframe')[0]

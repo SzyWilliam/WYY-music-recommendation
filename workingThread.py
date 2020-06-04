@@ -17,7 +17,7 @@ from database_demo import db_cls
 import threading
 import time
 import random
-import proxy.proxy as proxy
+import proxy
 
 visited_user_list = []
 visited_song_list = []
@@ -169,7 +169,7 @@ class ThreadPool:
             return None
 
     def _thread_scrapyUserAndSave(self, userUrl, threadSafeData, proxyUrl):
-        debug_print_thread("new [*user*] thread seed is " + userUrl, True)
+        debug_print_thread("new [*user*] thread seed={0} proxy={1}".format(userUrl, proxyUrl), True)
         res = ThreadPool._util_scrapySingleUser(userUrl, proxyUrl)
         if(res != None):
             [user_infos_list, user2song_list, user2songlist_list, follow_list] = res
@@ -204,7 +204,7 @@ class ThreadPool:
             return None
 
     def _thread_scrapySongAndSave(self, songUrl, threadSafeData, proxyUrl):
-        debug_print_thread("new [*song*] thread seed is " + songUrl, True)
+        debug_print_thread("new [*song*] thread seed={0} proxy={1}".format(songUrl, proxyUrl), True)
         res = ThreadPool._util_scrapySong(songUrl, proxyUrl)
         if(res != None):
             [song_info_tuple, song_artists_list] = res
@@ -235,12 +235,10 @@ class ThreadPool:
     
 
     def mainThread(self):
-        # proxy_table = proxy.API_read_proxy('http://ip.16yun.cn:817/myip/pl/2f9a681e-d91c-4eca-bbac-20fb13b2bdd9/?s=rxayvqswos&u=WS')
-        proxy_table = ['fuck wyy']
         while True:
             self.lock_availableThreads.acquire()
             for i in range(self.currentAvailThreads):
-                proxyUrl = random.choice(proxy_table)
+                proxyUrl = proxy.getProxy()
                 if self.dataSpace.userSeedsList.empty():
                     debug_print_thread('current seed list empty', True)
                     break
@@ -327,7 +325,7 @@ class ThreadPool:
 
 if __name__ == "__main__":
     try:
-        tp = ThreadPool(threadMaxNums=1)
+        tp = ThreadPool(threadMaxNums=4)
         threadingMain = threading.Thread(target=tp.mainThread, args=())
         threadingListener = threading.Thread(target=tp.listenerThread, args=())
         threadDb = threading.Thread(target=tp.databaseWriteInThread, args=())
