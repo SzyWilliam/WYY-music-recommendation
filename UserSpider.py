@@ -103,6 +103,9 @@ class UserSpider:
         
         frame = driver.find_elements_by_tag_name('iframe')[0]
         driver.switch_to.frame(frame)
+        WebDriverWait(driver, 10).until(
+            EC.presence_of_all_elements_located((By.TAG_NAME, 'a'))
+        )
 
         return driver.page_source
 
