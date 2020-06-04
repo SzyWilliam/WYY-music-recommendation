@@ -131,7 +131,6 @@ class UserSpider:
 
     def getAllContents(self):
         try:
-            
             self.getRecentSongs()
             if len(self.recent_song_list) < 20:
                 return "error"
