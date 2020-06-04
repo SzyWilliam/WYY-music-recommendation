@@ -158,9 +158,7 @@ class ThreadPool:
         self.databaseWriteInCondi = threading.Condition()
         self.lock_availableThreads = threading.Lock()
         self.dataSpace = ThreadSafeData()
-        self.dataSpace.userSeedsList.put(1337055936)
-        self.dataSpace.userSeedsList.put(1522705964)
-        self.dataSpace.userSeedsList.put(1372656985)
+
 
         #initialize the user seed list
         db_temp = db_cls("pj_data.db")
