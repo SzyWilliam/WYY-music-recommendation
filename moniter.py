@@ -23,14 +23,18 @@ def kill_target(target):
             pid = int(line.split()[1])
             kill(pid)
 # 建议在运行命令后面加上&符号，似乎是以另一个线程跑
-os.system('python ./run.py') 
-       
+
+
+running_cmd = "python workingThread.py"
 while True:
-    # 关闭
-    if some_condition:
-        print('暂停')
-        kill_target('woringThread.py')
+    is_running = False
+    cmd_run="ps aux | grep {}".format(running_cmd)
+    out=os.popen(cmd_run).read()
+    for line in out.splitlines():
+        if line.find(running_cmd) != -1:
+            is_running = True
+
     # 打开
-    if some_else_condition:
-        os.system('python ./woringThread.py')
+    if not is_running:
+        os.system(running_cmd)
 
