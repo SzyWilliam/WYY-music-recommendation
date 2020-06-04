@@ -151,9 +151,9 @@ class ThreadPool:
         self.__first_db_initialize_flag = False
 
     def _util_scrapySingleUser(userUrl, proxyUrl):
-            up = UserSpider(userUrl, proxyUrl)
-            # up.getAllContents()
-            res = up.getAllContents()
+        up = UserSpider(userUrl, proxyUrl)
+        # up.getAllContents()
+        res = up.getAllContents()
 
         if not up.UserConditionSatisfy20Songs():
             debug_print_thread('not satisfying with len ' +str(len(up.get_user2song_list())) )
