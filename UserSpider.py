@@ -120,8 +120,8 @@ class UserSpider:
             song_id = int(i.attrs['href'].split('=')[1])
             # print(i.get_text())
             self.recent_song_list.append(song_id)
-        if len(self.recent_song_list) < 20:
-            print(pageSource)
+        # if len(self.recent_song_list) < 20:
+        #     print(pageSource)
         
 
     def getUserBasicInfo(self):

@@ -143,7 +143,7 @@ class SongSpider:
                 self.artists.append(artist_id)
             return "ok"
         except:
-            print(html)
+            # print(html)
             return "error"
         finally:
             self.driver.close()
