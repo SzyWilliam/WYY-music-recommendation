@@ -41,7 +41,7 @@ class UserSpider:
         prox.proxy_type = ProxyType.MANUAL
         prox.http_proxy = proxy_url
         prox.ssl_proxy = proxy_url
-        prox.socks_proxy = proxy_url
+        # prox.socks_proxy = proxy_url
         capabilities = webdriver.DesiredCapabilities.CHROME
         prox.add_to_capabilities(capabilities)
         if(config_is_ubuntu):

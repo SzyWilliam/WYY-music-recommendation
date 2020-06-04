@@ -33,7 +33,7 @@ class SongSpider:
         prox.proxy_type = ProxyType.MANUAL
         prox.http_proxy = proxy_url
         prox.ssl_proxy = proxy_url
-        prox.socks_proxy = proxy_url
+        # prox.socks_proxy = proxy_url
         capabilities = webdriver.DesiredCapabilities.CHROME
         prox.add_to_capabilities(capabilities)
         chrome_options.add_argument('--headless')
