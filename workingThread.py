@@ -309,9 +309,7 @@ class ThreadPool:
                     self.databaseWriteInCondi.wait()
             self.databaseWriteInCondi.release()
 
-            self.dataSpace.lock_how_many_threads_after_previous_db_write.acquire()
             if self.dataSpace.how_many_threads_after_previous_db_write >= 40:
-                self.dataSpace.lock_how_many_threads_after_previous_db_write.release()
                 os._exit(1)
                 
 
