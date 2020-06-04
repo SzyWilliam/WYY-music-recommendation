@@ -162,6 +162,14 @@ class ThreadPool:
         self.dataSpace.userSeedsList.put(1522705964)
         self.dataSpace.userSeedsList.put(1372656985)
 
+        #initialize the user seed list
+        db_temp = db_cls("pj_data.db")
+        user_tables = db_temp.read_Data("Select * from User_Table")
+        for i in range(100):
+            self.dataSpace.userSeedsList.put(list(random.choice(user_tables))[0])
+        db_temp.close_db()
+
+
         self.__first_db_initialize_flag = False
 
     def _util_scrapySingleUser(userUrl, proxyUrl):
@@ -266,7 +274,6 @@ class ThreadPool:
                         while id_next in visited_user_list:
                             id_next = self.dataSpace.userSeedsList.get()
                         user_thread = self.newThread_User('https://music.163.com/#/user/home?id=' + str(id_next), proxyUrl)
-                        user_thread.setDaemon(True)
                         user_thread.start()
                         visited_user_list.append(id_next)
                         self.currentAvailThreads -= 1
@@ -276,7 +283,6 @@ class ThreadPool:
                         while id_next in visited_song_list:
                             id_next = self.dataSpace.songSeedsList.get()
                         song_thread = self.newThread_Song('https://music.163.com/#/song?id=' + str(id_next), proxyUrl)
-                        song_thread.setDaemon(True)
                         song_thread.start()
                         visited_song_list.append(id_next)
                         self.currentAvailThreads -= 1
@@ -355,9 +361,7 @@ if __name__ == "__main__":
         threadingListener = threading.Thread(target=tp.listenerThread, args=())
         threadDb = threading.Thread(target=tp.databaseWriteInThread, args=())
         threadingMain.start()
-        threadingListener.setDaemon(True)
         threadingListener.start()
-        threadDb.setDaemon(True)
         threadDb.start()
     finally:
         pass
