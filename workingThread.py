@@ -21,6 +21,7 @@ import threading
 import time
 import random
 import proxy
+import os
 
 visited_user_list = []
 visited_song_list = []
@@ -46,6 +47,9 @@ class ThreadSafeData:
         self.lock_guser_User2SongList = threading.Lock()
         self.lock_guser_User2SonglistList = threading.Lock()
         self.lock_guser_FollowList = threading.Lock()
+
+        self.how_many_threads_after_previous_db_write = 0
+        self.lock_how_many_threads_after_previous_db_write = threading.Lock()
 
         self.db = None
 
@@ -137,6 +141,11 @@ class ThreadSafeData:
         self.lock_guser_FollowList.release()
         self.lock_guser_UserInfosList.release()
         
+    def set_threads_after_db(self, num, increase=False):
+        self.lock_how_many_threads_after_previous_db_write.acquire()
+        if increase: self.how_many_threads_after_previous_db_write += 1
+        else: self.how_many_threads_after_previous_db_write = num
+        self.lock_how_many_threads_after_previous_db_write.release()
 
 def debug_print_thread(msg, exe=False):
     if exe: print('[*', threading.get_ident(), '*]', msg)
@@ -239,6 +248,7 @@ class ThreadPool:
 
     def mainThread(self):
         while True:
+
             self.lock_availableThreads.acquire()
             for i in range(self.currentAvailThreads):
                 proxyUrl = proxy.getProxy()
@@ -256,17 +266,21 @@ class ThreadPool:
                         while id_next in visited_user_list:
                             id_next = self.dataSpace.userSeedsList.get()
                         user_thread = self.newThread_User('https://music.163.com/#/user/home?id=' + str(id_next), proxyUrl)
+                        user_thread.setDaemon(True)
                         user_thread.start()
                         visited_user_list.append(id_next)
                         self.currentAvailThreads -= 1
+                        self.dataSpace.set_threads_after_db(0, increase=True)
                     elif (randres == 2): #then next song
                         id_next = self.dataSpace.songSeedsList.get()
                         while id_next in visited_song_list:
                             id_next = self.dataSpace.songSeedsList.get()
                         song_thread = self.newThread_Song('https://music.163.com/#/song?id=' + str(id_next), proxyUrl)
+                        song_thread.setDaemon(True)
                         song_thread.start()
                         visited_song_list.append(id_next)
                         self.currentAvailThreads -= 1
+                        self.dataSpace.set_threads_after_db(0, increase=True)
 
             self.lock_availableThreads.release()
             if self.availThreadCondi.acquire():
@@ -288,6 +302,12 @@ class ThreadPool:
                     self.databaseWriteInCondi.notify()
                     self.databaseWriteInCondi.wait()
             self.databaseWriteInCondi.release()
+
+            self.dataSpace.lock_how_many_threads_after_previous_db_write.acquire()
+            if self.dataSpace.how_many_threads_after_previous_db_write >= 40:
+                self.dataSpace.lock_how_many_threads_after_previous_db_write.release()
+                os._exit(1)
+                
 
     def databaseWriteInThread(self):
         while True:
@@ -312,6 +332,8 @@ class ThreadPool:
                     for user in users:
                         debug_print_thread(user)
                     db.close_db()
+                    self.dataSpace.set_threads_after_db(0)
+                
                     
                 
                 self.databaseWriteInCondi.notify()
@@ -333,7 +355,9 @@ if __name__ == "__main__":
         threadingListener = threading.Thread(target=tp.listenerThread, args=())
         threadDb = threading.Thread(target=tp.databaseWriteInThread, args=())
         threadingMain.start()
+        threadingListener.setDaemon(True)
         threadingListener.start()
+        threadDb.setDaemon(True)
         threadDb.start()
     finally:
         pass
