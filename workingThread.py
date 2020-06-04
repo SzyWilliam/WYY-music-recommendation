@@ -19,6 +19,10 @@ import time
 import random
 import proxy.proxy as proxy
 
+visited_user_list = []
+visited_song_list = []
+
+
 class ThreadSafeData:
     def __init__(self):
         self.allSongids = []
@@ -44,6 +48,19 @@ class ThreadSafeData:
 
     def create_db(self, db_filename = "pj_data.db"):
         self.db = db_cls(db_filename = db_filename)
+        global visited_song_list
+        global visited_user_list
+        visited_song_list.clear()
+        visited_user_list.clear()
+
+        vsongs = self.db.read_Data("Select * from Song")
+        for eachSong in vsongs:
+            visited_song_list.append(list(eachSong)[0])
+        
+        vusers = self.db.read_Data("Select * from User_Table")
+        for eachUser in vusers:
+            visited_user_list.append(list(eachUser)[0])
+
 
 
     def addNewSongs_threadSafe(self, song_info_list, song2singer_list):
@@ -118,7 +135,6 @@ class ThreadSafeData:
         self.lock_guser_UserInfosList.release()
         
 
-
 def debug_print_thread(msg, exe=False):
     if exe: print('[*', threading.get_ident(), '*]', msg)
 
@@ -135,9 +151,12 @@ class ThreadPool:
         self.__first_db_initialize_flag = False
 
     def _util_scrapySingleUser(userUrl, proxyUrl):
-        up = UserSpider(userUrl, proxyUrl)
-        # up.getAllContents()
-        res = up.getAllContents()
+        try:
+            up = UserSpider(userUrl, proxyUrl)
+            # up.getAllContents()
+            res = up.getAllContents()
+        except:
+            return None
         if not up.UserConditionSatisfy20Songs():
             debug_print_thread('not satisfying with len ' +str(len(up.get_user2song_list())) )
             #pass do nothing
@@ -171,8 +190,11 @@ class ThreadPool:
         self.lock_availableThreads.release()
 
     def _util_scrapySong(songUrl, proxyUrl):
-        sp = SongSpider(songUrl, proxyUrl)
-        res = sp.getInfo(sp.getPageSource())
+        try:
+            sp = SongSpider(songUrl, proxyUrl)
+            res = sp.getInfo(sp.getPageSource())
+        except:
+            return None
         if res == "ok":
             song_info = sp.getSongRequiredTuple()
             song_artists = sp.getSongArtistsList()
@@ -230,13 +252,19 @@ class ThreadPool:
                     elif self.dataSpace.songSeedsList.empty(): randres = 1
                     if(randres == 1): #then next user
                         id_next = self.dataSpace.userSeedsList.get()
+                        while id_next in visited_user_list:
+                            id_next = self.dataSpace.userSeedsList.get()
                         user_thread = self.newThread_User('https://music.163.com/#/user/home?id=' + str(id_next), proxyUrl)
                         user_thread.start()
+                        visited_user_list.append(id_next)
                         self.currentAvailThreads -= 1
                     elif (randres == 2): #then next song
                         id_next = self.dataSpace.songSeedsList.get()
+                        while id_next in visited_song_list:
+                            id_next = self.dataSpace.songSeedsList.get()
                         song_thread = self.newThread_Song('https://music.163.com/#/song?id=' + str(id_next), proxyUrl)
                         song_thread.start()
+                        visited_song_list.append(id_next)
                         self.currentAvailThreads -= 1
 
             self.lock_availableThreads.release()

@@ -39,7 +39,7 @@ class SongSpider:
         # debug_print_thread("we are using proxy sever with url " + proxy_url)
         # chrome_options.add_argument('--proxy-server=http://114.98.27.147:4216')
 
-        self.driver = driver = webdriver.Chrome(config_chrome_path, options=chrome_options)
+        self.driver = webdriver.Chrome(config_chrome_path, options=chrome_options)
 #         script = '''Object.defineProperty(navigator, 'webdriver', {get: () => undefined})
 # '''
 #         self.driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {"source": script})
