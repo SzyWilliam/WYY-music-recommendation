@@ -10,6 +10,9 @@
 数据库在读写的时候，每个爬取线程都会向内存中写入信息
 然后内存主线程在积累到了一定的数量的歌曲和用户之后写入到数据库线程中
 """
+
+
+
 from queue import Queue
 from UserSpider import UserSpider
 from SongSpider import SongSpider
