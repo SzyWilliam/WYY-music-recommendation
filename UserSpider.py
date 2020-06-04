@@ -15,7 +15,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 import threading
 from selenium.webdriver.common.proxy import ProxyType, Proxy
 config_chrome_path = "../chromedriver"
-config_is_ubuntu = False
+config_is_ubuntu = True
 
 def debug_print_thread(msg, exe=True):
     if exe: print('[*', threading.get_ident(), '*]', msg)
@@ -51,7 +51,7 @@ class UserSpider:
         # debug_print_thread("we are using proxy sever with url " + proxy_url)
         self.driver_home = webdriver.Chrome(config_chrome_path, options=chrome_options, desired_capabilities=capabilities)
         self.driver_recent_songs = webdriver.Chrome(config_chrome_path, options=chrome_options,  desired_capabilities=capabilities)
-        self.driver_recent_songs.set_page_load_timeout(10)
+        #self.driver_recent_songs.set_page_load_timeout(10)
         self.driver_follows = webdriver.Chrome(config_chrome_path, options=chrome_options,  desired_capabilities=capabilities)
 #         script = '''Object.defineProperty(navigator, 'webdriver', {get: () => undefined})
 # '''
@@ -67,7 +67,7 @@ class UserSpider:
     def getPageSource(self, pageUrl, driver):
         driver.get(pageUrl)
         
-        WebDriverWait(driver, 15).until(
+        WebDriverWait(driver, 30).until(
             EC.presence_of_all_elements_located((By.TAG_NAME, 'iframe'))
         )
         
@@ -80,7 +80,7 @@ class UserSpider:
         pageSource = self.getPageSource(self.songRankUrl, self.driver_recent_songs)
         bs = BeautifulSoup(pageSource, 'html.parser')
         # print(self.songRankUrl)
-        # print(pageSource)
+        print(pageSource)
         recent_songs = bs.findAll('a', {'href':re.compile('/song*')})
         # print(recent_songs)
         for i in recent_songs:
