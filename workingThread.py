@@ -138,7 +138,7 @@ class ThreadSafeData:
         self.lock_guser_UserInfosList.release()
         
 
-def debug_print_thread(msg, exe=True):
+def debug_print_thread(msg, exe=False):
     if exe: print('[*', threading.get_ident(), '*]', msg)
 
 class ThreadPool:

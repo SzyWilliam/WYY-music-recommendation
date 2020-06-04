@@ -138,9 +138,8 @@ class SongSpider:
                 artist_id = int(artist['href'].split('=')[1])
                 self.artists.append(artist_id)
             return "ok"
-        except AttributeError:
-            return "error"
         except:
+            print(html)
             return "error"
         finally:
             self.driver.close()

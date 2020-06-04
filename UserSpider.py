@@ -110,13 +110,15 @@ class UserSpider:
         pageSource = self.getPageSource(self.songRankUrl, self.driver_recent_songs)
         bs = BeautifulSoup(pageSource, 'html.parser')
         # print(self.songRankUrl)
-        #print(pageSource)
+        # print(pageSource)
         recent_songs = bs.findAll('a', {'href':re.compile('/song*')})
         # print(recent_songs)
         for i in recent_songs:
             song_id = int(i.attrs['href'].split('=')[1])
             # print(i.get_text())
             self.recent_song_list.append(song_id)
+        if len(self.recent_song_list) < 20:
+            print(pageSource)
         
 
     def getUserBasicInfo(self):
