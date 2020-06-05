@@ -150,7 +150,7 @@ class ThreadSafeData:
         else: self.how_many_threads_after_previous_db_write = num
         self.lock_how_many_threads_after_previous_db_write.release()
 
-def debug_print_thread(msg, exe=True):
+def debug_print_thread(msg, exe=False):
     if exe: print('[*', threading.get_ident(), '*]', msg)
 
 class ThreadPool:
