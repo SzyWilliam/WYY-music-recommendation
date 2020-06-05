@@ -103,7 +103,8 @@ class UserSpider:
         
         frame = driver.find_elements_by_tag_name('iframe')[0]
         driver.switch_to.frame(frame)
-        WebDriverWait(driver, 20).until(
+
+        WebDriverWait(driver, 40).until(
             EC.presence_of_all_elements_located((By.TAG_NAME, 'a'))
         )
 
@@ -120,8 +121,8 @@ class UserSpider:
             song_id = int(i.attrs['href'].split('=')[1])
             # print(i.get_text())
             self.recent_song_list.append(song_id)
-        # if len(self.recent_song_list) < 20:
-        #     print(pageSource)
+        if len(self.recent_song_list) < 20:
+            print(pageSource)
         
 
     def getUserBasicInfo(self):
