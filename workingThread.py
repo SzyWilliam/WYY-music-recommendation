@@ -314,14 +314,14 @@ class ThreadPool:
                     self.databaseWriteInCondi.wait()
             self.databaseWriteInCondi.release()
 
-            if self.dataSpace.how_many_threads_after_previous_db_write >= 40:
+            if self.dataSpace.how_many_threads_after_previous_db_write >= 50:
                 os._exit(1)
                 
 
     def databaseWriteInThread(self):
         while True:
             if(self.databaseWriteInCondi.acquire()):
-                if(len(self.dataSpace.guser_UserInfosList) > 5 or len(self.dataSpace.gsong_SongInfoList) > 5):
+                if(len(self.dataSpace.guser_UserInfosList) >= 3 or len(self.dataSpace.gsong_SongInfoList) >= 3):
                     # if(not self.__first_db_initialize_flag):
                     self.dataSpace.create_db()
                     # self.__first_db_initialize_flag = False

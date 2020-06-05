@@ -61,7 +61,7 @@ class SongSpider:
         capabilities = webdriver.DesiredCapabilities.CHROME
         prox.add_to_capabilities(capabilities)
         chrome_options.add_argument('--headless')
-        chrome_options.add_argument('user-agent={0}'.format(random.choice(uas)))
+        # chrome_options.add_argument('user-agent={0}'.format(random.choice(uas)))
         # chrome_options.add_experimental_option("prefs", {"profile.managed_default_content_settings.images": 2})
         if config_is_ubuntu:
             chrome_options.add_argument('--no-sandbox')
@@ -89,7 +89,7 @@ class SongSpider:
         frame = self.driver.find_elements_by_tag_name('iframe')[0]
         self.driver.switch_to.frame(frame)
 
-        WebDriverWait(driver, 20).until(
+        WebDriverWait(driver, 40).until(
             EC.presence_of_all_elements_located((By.TAG_NAME, 'a'))
         )
 
@@ -143,7 +143,7 @@ class SongSpider:
                 self.artists.append(artist_id)
             return "ok"
         except:
-            # print(html)
+            print(html)
             return "error"
         finally:
             self.driver.close()
