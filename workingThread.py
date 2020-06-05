@@ -237,6 +237,7 @@ class ThreadPool:
                 tuple(song_info_tuple),
                 list(song_artists_list)
             )
+            debug_print_thread("successfully scraped a new song")
         debug_print_thread('ending this song thread')
         self.lock_availableThreads.acquire()
         self.currentAvailThreads += 1
