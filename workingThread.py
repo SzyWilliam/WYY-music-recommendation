@@ -168,11 +168,11 @@ class ThreadPool:
         self.dataSpace.userSeedsList.put(350714427)
         self.dataSpace.userSeedsList.put(20888663)
         self.dataSpace.userSeedsList.put(588707084)
-        # db_temp = db_cls("pj_data.db")
-        # user_tables = db_temp.read_Data("Select * from Follow")
-        # for i in range(30):
-        #     self.dataSpace.userSeedsList.put(list(random.choice(user_tables))[1])
-        # db_temp.close_db()
+        db_temp = db_cls("pj_data.db")
+        user_tables = db_temp.read_Data("Select * from Follow")
+        for i in range(3):
+            self.dataSpace.userSeedsList.put(list(random.choice(user_tables))[1])
+        db_temp.close_db()
 
 
         self.__first_db_initialize_flag = False
