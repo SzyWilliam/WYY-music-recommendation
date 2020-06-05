@@ -79,10 +79,10 @@ class UserSpider:
         # chrome_options.add_experimental_option('excludeSwitches', ['enable-automation'])
         # chrome_options.add_argument('user-agent={0}'.format(random.choice(uas)))
         # debug_print_thread("we are using proxy sever with url " + proxy_url)
-        self.driver_home = webdriver.Chrome(config_chrome_path, options=chrome_options, desired_capabilities=capabilities)
-        self.driver_recent_songs = webdriver.Chrome(config_chrome_path, options=chrome_options,  desired_capabilities=capabilities)
+        self.driver_home = webdriver.Chrome(config_chrome_path, options=chrome_options)
+        self.driver_recent_songs = webdriver.Chrome(config_chrome_path, options=chrome_options)
         #self.driver_recent_songs.set_page_load_timeout(10)
-        self.driver_follows = webdriver.Chrome(config_chrome_path, options=chrome_options,  desired_capabilities=capabilities)
+        self.driver_follows = webdriver.Chrome(config_chrome_path, options=chrome_options)
 #         script = '''Object.defineProperty(navigator, 'webdriver', {get: () => undefined})
 # '''
 #         self.driver_home.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {"source": script})
