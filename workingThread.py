@@ -150,7 +150,7 @@ class ThreadSafeData:
         else: self.how_many_threads_after_previous_db_write = num
         self.lock_how_many_threads_after_previous_db_write.release()
 
-def debug_print_thread(msg, exe=False):
+def debug_print_thread(msg, exe=True):
     if exe: print('[*', threading.get_ident(), '*]', msg)
 
 class ThreadPool:
@@ -164,8 +164,8 @@ class ThreadPool:
 
 
         #initialize the user seed list
-        self.dataSpace.userSeedsList.put(1407630844)
-        self.dataSpace.userSeedsList.put(111775616)
+        self.dataSpace.userSeedsList.put(340056317)
+        self.dataSpace.userSeedsList.put(350714427)
         self.dataSpace.userSeedsList.put(20888663)
         self.dataSpace.userSeedsList.put(588707084)
         # db_temp = db_cls("pj_data.db")
