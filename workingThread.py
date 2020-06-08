@@ -148,6 +148,13 @@ class ThreadPool:
         self.dataSpace = ThreadSafeData()
         self.dataSpace.userSeedsList.put(54269568)
 
+        candidate_songs_file = open("./candidate_songs.txt")
+        lines = candidate_songs_file.readlines()
+        for line in lines:
+            seed = int(line.strip())
+            # debug_print_thread(seed, True)
+            self.dataSpace.songSeedsList.put(seed)
+
         self.__first_db_initialize_flag = False
 
     def _util_scrapySingleUser(userUrl, proxyUrl):
@@ -238,6 +245,7 @@ class ThreadPool:
         # proxy_table = proxy.API_read_proxy('http://ip.16yun.cn:817/myip/pl/2f9a681e-d91c-4eca-bbac-20fb13b2bdd9/?s=rxayvqswos&u=WS')
         proxy_table = ['fuck wyy']
         while True:
+            # debug_print_thread(self.dataSpace.gsong_SongInfoList, True)
             self.lock_availableThreads.acquire()
             for i in range(self.currentAvailThreads):
                 proxyUrl = random.choice(proxy_table)
@@ -250,6 +258,7 @@ class ThreadPool:
                     randres = random.choice([1,2])
                     if self.dataSpace.userSeedsList.empty(): randres = 2
                     elif self.dataSpace.songSeedsList.empty(): randres = 1
+                    randres = 2
                     if(randres == 1): #then next user
                         id_next = self.dataSpace.userSeedsList.get()
                         while id_next in visited_user_list:
