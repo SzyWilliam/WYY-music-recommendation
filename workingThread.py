@@ -10,6 +10,9 @@
 数据库在读写的时候，每个爬取线程都会向内存中写入信息
 然后内存主线程在积累到了一定的数量的歌曲和用户之后写入到数据库线程中
 """
+
+
+
 from queue import Queue
 from UserSpider import UserSpider
 from SongSpider import SongSpider
@@ -17,9 +20,10 @@ from database_demo import db_cls
 import threading
 import time
 import random
-import proxy.proxy as proxy
+import proxy
+import os
 
-visited_user_list = []
+visited_user_list = [1]
 visited_song_list = []
 
 
@@ -44,22 +48,28 @@ class ThreadSafeData:
         self.lock_guser_User2SonglistList = threading.Lock()
         self.lock_guser_FollowList = threading.Lock()
 
+        self.how_many_threads_after_previous_db_write = 0
+        self.lock_how_many_threads_after_previous_db_write = threading.Lock()
+
         self.db = None
 
     def create_db(self, db_filename = "pj_data.db"):
         self.db = db_cls(db_filename = db_filename)
         global visited_song_list
         global visited_user_list
-        visited_song_list.clear()
-        visited_user_list.clear()
+
 
         vsongs = self.db.read_Data("Select * from Song")
         for eachSong in vsongs:
-            visited_song_list.append(list(eachSong)[0])
+            id = list(eachSong)[0]
+            if id not in visited_song_list:
+                visited_song_list.append(id)
         
         vusers = self.db.read_Data("Select * from User_Table")
         for eachUser in vusers:
-            visited_user_list.append(list(eachUser)[0])
+            id = list(eachUser)[0]
+            if id not in visited_user_list:
+                visited_user_list.append(list(eachUser)[0])
 
 
 
@@ -134,6 +144,11 @@ class ThreadSafeData:
         self.lock_guser_FollowList.release()
         self.lock_guser_UserInfosList.release()
         
+    def set_threads_after_db(self, num, increase=False):
+        self.lock_how_many_threads_after_previous_db_write.acquire()
+        if increase: self.how_many_threads_after_previous_db_write += 1
+        else: self.how_many_threads_after_previous_db_write = num
+        self.lock_how_many_threads_after_previous_db_write.release()
 
 def debug_print_thread(msg, exe=False):
     if exe: print('[*', threading.get_ident(), '*]', msg)
@@ -146,7 +161,19 @@ class ThreadPool:
         self.databaseWriteInCondi = threading.Condition()
         self.lock_availableThreads = threading.Lock()
         self.dataSpace = ThreadSafeData()
-        self.dataSpace.userSeedsList.put(54269568)
+
+
+        #initialize the user seed list
+        self.dataSpace.userSeedsList.put(340056317)
+        self.dataSpace.userSeedsList.put(350714427)
+        self.dataSpace.userSeedsList.put(20888663)
+        self.dataSpace.userSeedsList.put(588707084)
+        db_temp = db_cls("pj_data.db")
+        user_tables = db_temp.read_Data("Select * from Follow")
+        for i in range(3):
+            self.dataSpace.userSeedsList.put(list(random.choice(user_tables))[1])
+        db_temp.close_db()
+
 
         candidate_songs_file = open("./candidate_songs.txt")
         lines = candidate_songs_file.readlines()
@@ -158,12 +185,10 @@ class ThreadPool:
         self.__first_db_initialize_flag = False
 
     def _util_scrapySingleUser(userUrl, proxyUrl):
-        try:
-            up = UserSpider(userUrl, proxyUrl)
-            # up.getAllContents()
-            res = up.getAllContents()
-        except:
-            return None
+        up = UserSpider(userUrl, proxyUrl)
+        # up.getAllContents()
+        res = up.getAllContents()
+
         if not up.UserConditionSatisfy20Songs():
             debug_print_thread('not satisfying with len ' +str(len(up.get_user2song_list())) )
             #pass do nothing
@@ -176,7 +201,7 @@ class ThreadPool:
             return None
 
     def _thread_scrapyUserAndSave(self, userUrl, threadSafeData, proxyUrl):
-        debug_print_thread("new [*user*] thread seed is " + userUrl, True)
+        debug_print_thread("new [*user*] thread seed={0} proxy={1}".format(userUrl, proxyUrl), True)
         res = ThreadPool._util_scrapySingleUser(userUrl, proxyUrl)
         if(res != None):
             [user_infos_list, user2song_list, user2songlist_list, follow_list] = res
@@ -211,7 +236,7 @@ class ThreadPool:
             return None
 
     def _thread_scrapySongAndSave(self, songUrl, threadSafeData, proxyUrl):
-        debug_print_thread("new [*song*] thread seed is " + songUrl, True)
+        debug_print_thread("new [*song*] thread seed={0} proxy={1}".format(songUrl, proxyUrl), True)
         res = ThreadPool._util_scrapySong(songUrl, proxyUrl)
         if(res != None):
             [song_info_tuple, song_artists_list] = res
@@ -219,6 +244,7 @@ class ThreadPool:
                 tuple(song_info_tuple),
                 list(song_artists_list)
             )
+            debug_print_thread("successfully scraped a new song")
         debug_print_thread('ending this song thread')
         self.lock_availableThreads.acquire()
         self.currentAvailThreads += 1
@@ -242,13 +268,13 @@ class ThreadPool:
     
 
     def mainThread(self):
-        # proxy_table = proxy.API_read_proxy('http://ip.16yun.cn:817/myip/pl/2f9a681e-d91c-4eca-bbac-20fb13b2bdd9/?s=rxayvqswos&u=WS')
-        proxy_table = ['fuck wyy']
         while True:
             # debug_print_thread(self.dataSpace.gsong_SongInfoList, True)
+
             self.lock_availableThreads.acquire()
             for i in range(self.currentAvailThreads):
-                proxyUrl = random.choice(proxy_table)
+                # proxyUrl = proxy.getProxy()
+                proxyUrl = 'fuckingWYY'
                 if self.dataSpace.userSeedsList.empty():
                     debug_print_thread('current seed list empty', True)
                     break
@@ -267,6 +293,7 @@ class ThreadPool:
                         user_thread.start()
                         visited_user_list.append(id_next)
                         self.currentAvailThreads -= 1
+                        self.dataSpace.set_threads_after_db(0, increase=True)
                     elif (randres == 2): #then next song
                         id_next = self.dataSpace.songSeedsList.get()
                         while id_next in visited_song_list:
@@ -275,6 +302,7 @@ class ThreadPool:
                         song_thread.start()
                         visited_song_list.append(id_next)
                         self.currentAvailThreads -= 1
+                        self.dataSpace.set_threads_after_db(0, increase=True)
 
             self.lock_availableThreads.release()
             if self.availThreadCondi.acquire():
@@ -297,10 +325,14 @@ class ThreadPool:
                     self.databaseWriteInCondi.wait()
             self.databaseWriteInCondi.release()
 
+            if self.dataSpace.how_many_threads_after_previous_db_write >= 50:
+                os._exit(1)
+                
+
     def databaseWriteInThread(self):
         while True:
             if(self.databaseWriteInCondi.acquire()):
-                if(len(self.dataSpace.guser_UserInfosList) > 5 or len(self.dataSpace.gsong_SongInfoList) > 5):
+                if(len(self.dataSpace.guser_UserInfosList) >= 3 or len(self.dataSpace.gsong_SongInfoList) >= 3):
                     # if(not self.__first_db_initialize_flag):
                     self.dataSpace.create_db()
                     # self.__first_db_initialize_flag = False
@@ -320,6 +352,8 @@ class ThreadPool:
                     for user in users:
                         debug_print_thread(user)
                     db.close_db()
+                    self.dataSpace.set_threads_after_db(0)
+                
                     
                 
                 self.databaseWriteInCondi.notify()

@@ -110,7 +110,3 @@ class SonglistSpider:
 if __name__ == "__main__":
     slp = SonglistSpider('https://music.163.com/#/playlist?id=4960389142')
     slp.getAllTags(None)
-
-
-
-        
