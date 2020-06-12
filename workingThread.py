@@ -370,7 +370,7 @@ class ThreadPool:
 
 if __name__ == "__main__":
     try:
-        tp = ThreadPool(threadMaxNums=1)
+        tp = ThreadPool(threadMaxNums=12)
         threadingMain = threading.Thread(target=tp.mainThread, args=())
         threadingListener = threading.Thread(target=tp.listenerThread, args=())
         threadDb = threading.Thread(target=tp.databaseWriteInThread, args=())
