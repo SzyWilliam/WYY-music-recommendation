@@ -150,7 +150,7 @@ class ThreadSafeData:
         else: self.how_many_threads_after_previous_db_write = num
         self.lock_how_many_threads_after_previous_db_write.release()
 
-def debug_print_thread(msg, exe=False):
+def debug_print_thread(msg, exe=True):
     if exe: print('[*', threading.get_ident(), '*]', msg)
 
 class ThreadPool:
@@ -224,10 +224,16 @@ class ThreadPool:
     def _util_scrapySong(songUrl, proxyUrl):
         try:
             sp = SongSpider(songUrl, proxyUrl)
-            res = sp.getInfo(sp.getPageSource())
-        except:
+            debug_print_thread("break point here")
+            source = sp.getPageSource()
+            debug_print_thread("successfully get the page")
+            res = sp.getInfo(source)
+        except Exception:
+            print(Exception.message)
+            debug_print_thread("exception occurred in this song thread")
             return None
         if res == "ok":
+            debug_print_thread("successful scapy song, add in set")
             song_info = sp.getSongRequiredTuple()
             song_artists = sp.getSongArtistsList()
             return [song_info, song_artists]
@@ -370,7 +376,7 @@ class ThreadPool:
 
 if __name__ == "__main__":
     try:
-        tp = ThreadPool(threadMaxNums=12)
+        tp = ThreadPool(threadMaxNums=1)
         threadingMain = threading.Thread(target=tp.mainThread, args=())
         threadingListener = threading.Thread(target=tp.listenerThread, args=())
         threadDb = threading.Thread(target=tp.databaseWriteInThread, args=())
