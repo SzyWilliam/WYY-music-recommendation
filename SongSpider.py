@@ -96,7 +96,7 @@ class SongSpider:
             WebDriverWait(driver, 40).until(
                 EC.presence_of_all_elements_located((By.TAG_NAME, 'a'))
             )
-        except:
+        except: 
             debug_print_thread(self.driver.page_source)
 
         return self.driver.page_source

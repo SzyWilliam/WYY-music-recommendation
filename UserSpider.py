@@ -15,7 +15,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 import threading
 from selenium.webdriver.common.proxy import ProxyType, Proxy
 config_chrome_path = "../chromedriver"
-config_is_ubuntu = False
+config_is_ubuntu = True
 
 
 
