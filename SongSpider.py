@@ -82,20 +82,22 @@ class SongSpider:
     def getPageSource(self):
 
         self.driver.get(self.songUrl)
-
-        time.sleep(4)
-        debug_print_thread(self.driver.page_source)
         
-        WebDriverWait(self.driver, 40).until(
-           EC.presence_of_all_elements_located((By.TAG_NAME, 'iframe'))
-        )
+        try:
+            WebDriverWait(self.driver, 40).until(
+                EC.presence_of_all_elements_located((By.TAG_NAME, 'iframe'))
+            )
         
-        frame = self.driver.find_elements_by_tag_name('iframe')[0]
-        self.driver.switch_to.frame(frame)
+        
+            frame = self.driver.find_elements_by_tag_name('iframe')[0]
+            self.driver.switch_to.frame(frame)
+        
 
-        # WebDriverWait(driver, 40).until(
-        #     EC.presence_of_all_elements_located((By.TAG_NAME, 'a'))
-        # )
+            WebDriverWait(driver, 40).until(
+                EC.presence_of_all_elements_located((By.TAG_NAME, 'a'))
+            )
+        except:
+            debug_print_thread(self.driver.page_source)
 
         return self.driver.page_source
 
